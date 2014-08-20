@@ -305,13 +305,11 @@ namespace MQMTech.AI.BT
     			{
     				_childrenIdx = i;
 
-    				_status = status;
-    				return _status;
+    				return status;
     			}
     		}
 
-    		_status = Status.FAILURE;
-    		return _status;
+    		return Status.FAILURE;
     	}
     }
 
@@ -331,15 +329,27 @@ namespace MQMTech.AI.BT
     			if(status != Status.FAILURE)
     			{
     				_childrenIdx = i;
-
-    				_status = status;
     				return _status;
     			}
     		}
 
-    		_status = Status.FAILURE;
-    		return _status;
+    		return Status.FAILURE;
     	}
+    }
+
+    public class RandomSelector : Composite
+    {
+        public override void OnInitialize()
+        {
+            base.OnInitialize();
+
+            _childrenIdx = UnityEngine.Random.Range(0, _children.Count);
+        }
+
+        public override Status Update()
+        {
+            return _children[_childrenIdx].Tick();
+        }
     }
 
     public abstract class Decorator : Behavior
@@ -393,8 +403,13 @@ namespace MQMTech.AI.BT
     		Status childStatus = _child.Tick();
     		if(childStatus == Status.FAILURE)
     		{
-                return Status.FAILURE;
+                return Status.SUCCESS;
     		}
+
+            if(childStatus != Status.RUNNING)
+            {
+                _child.OnReset();
+            }
 
             return Status.RUNNING;
     	}
@@ -408,6 +423,11 @@ namespace MQMTech.AI.BT
             if(childStatus == Status.SUCCESS)
             {
                 return Status.SUCCESS;
+            }
+
+            if(childStatus != Status.RUNNING)
+            {
+                _child.OnReset();
             }
             
             return Status.RUNNING;
@@ -741,6 +761,30 @@ namespace MQMTech.AI.BT
         public override Status Update()
         {
             Debug.Log(_msg);
+            
+            return Status.SUCCESS;
+        }
+    }
+
+    public class LogVarAction : Behavior
+    {
+        AIMemoryKey _key;
+        
+        public LogVarAction(AIMemoryKey key)
+        {
+            _key = key;
+        }
+        
+        public override Status Update()
+        {
+            System.Object obj;
+            bool isOK = _bt.GetMemoryObject<System.Object>(_key, out obj);
+            DebugUtils.Assert(isOK, _key.Name + " does NOT exist");
+            DebugUtils.Assert(obj != null, _key.Name + "is NULL");
+            if(obj != null)
+            {
+                Debug.Log(_key.Name + ": " + obj.ToString());
+            }
             
             return Status.SUCCESS;
         }

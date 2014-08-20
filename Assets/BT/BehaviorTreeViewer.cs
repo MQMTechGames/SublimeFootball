@@ -129,7 +129,7 @@ namespace MQMTech.AI.BT
     		string name = GetBehaviorName(behavior);
 
     		Behavior.Status status = parentStatus;
-    		if(status != Behavior.Status.FAILURE)
+            if(parentStatus != Behavior.Status.FAILURE && parentStatus != Behavior.Status.INVALID)
     		{
     			status = behavior.BehaviorStatus;
     		}

@@ -12,10 +12,10 @@ public class SimpleUnitMoverBuilder : MonoBehaviour, IBehaviorWithTree
     BehaviorTree _bt;
 
     [SerializeField]
-    SimpleMoveToAction _simpleMoveToAction = new SimpleMoveToAction(UnitAIMemory.Mover, UnitAIMemory.TargetBallPosition);
+    SimpleMoveToAction _simpleMoveToAction = new SimpleMoveToAction(UnitAIMemory.Mover, UnitAIMemory.BallEndPosition);
 
     [SerializeField]
-    SimpleRotateToAction _simpleRotateToAction = new SimpleRotateToAction(UnitAIMemory.Mover, UnitAIMemory.TargetBallPosition);
+    SimpleRotateToAction _simpleRotateToAction = new SimpleRotateToAction(UnitAIMemory.Mover, UnitAIMemory.BallEndPosition);
 
     void Awake()
     {
@@ -48,7 +48,7 @@ public class SimpleUnitMoverBuilder : MonoBehaviour, IBehaviorWithTree
 
         Sequence tryToMoveByCommand = new Sequence();
             tryToMoveByCommand.AddChild(new CheckMemoryType<MoveToCommand>(UnitAIMemory.MoverCommand));
-            tryToMoveByCommand.AddChild(new SaveMoveToProperties(UnitAIMemory.MoverCommand, UnitAIMemory.TargetBallPosition));
+            tryToMoveByCommand.AddChild(new SaveMoveToProperties(UnitAIMemory.MoverCommand, UnitAIMemory.BallEndPosition));
             tryToMoveByCommand.AddChild(new SetKnowledgeStatus(UnitAIMemory.MoverCommand, KnowledgeStatus.PROCESSED));
             tryToMoveByCommand.AddChild(move);
             tryToMoveByCommand.AddChild(new RemoveMemoryVar(UnitAIMemory.MoverCommand));
@@ -60,7 +60,7 @@ public class SimpleUnitMoverBuilder : MonoBehaviour, IBehaviorWithTree
 
         Sequence tryToFaceToCommand = new Sequence();
             tryToFaceToCommand.AddChild(new CheckMemoryType<FaceToCommand>(UnitAIMemory.MoverCommand));
-            tryToFaceToCommand.AddChild(new SaveFaceToProperties(UnitAIMemory.MoverCommand, UnitAIMemory.TargetBallPosition));
+            tryToFaceToCommand.AddChild(new SaveFaceToProperties(UnitAIMemory.MoverCommand, UnitAIMemory.BallEndPosition));
             tryToFaceToCommand.AddChild(new SetKnowledgeStatus(UnitAIMemory.MoverCommand, KnowledgeStatus.PROCESSED));
             tryToFaceToCommand.AddChild(rotate);
             tryToFaceToCommand.AddChild(new RemoveMemoryVar(UnitAIMemory.MoverCommand));

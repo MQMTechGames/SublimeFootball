@@ -35,16 +35,29 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
     {
         Selector mainAI = new Selector();
 
+//-- Find forward direction
+        Sequence findTargetDirection = new Sequence();
+            findTargetDirection.AddChild(new FindGoal(UnitAIMemory.Unit, UnitAIMemory.Goal));
+            findTargetDirection.AddChild(new SavePositionFromComponent(UnitAIMemory.Goal, UnitAIMemory.GoalPosition));
+            findTargetDirection.AddChild(new CalculateDirectionToPosition(UnitAIMemory.Unit, UnitAIMemory.GoalPosition, UnitAIMemory.TargetDirection));
+            findTargetDirection.AddChild(new SetMemoryVar<Vector3>(UnitAIMemory.ForwardDirection, new Vector3(0.0f, 0.0f, 1.0f)));
+            findTargetDirection.AddChild(new Vector3Dot(UnitAIMemory.TargetDirection, UnitAIMemory.ForwardDirection, UnitAIMemory.DotResult));
+            findTargetDirection.AddChild(new Vector3MultiplyByScalar(UnitAIMemory.ForwardDirection, UnitAIMemory.DotResult, UnitAIMemory.TargetDirection));
+            findTargetDirection.AddChild(new Vector3Normalize(UnitAIMemory.TargetDirection, UnitAIMemory.TargetDirection));
+
+//        //-- MoveForward
+        Sequence moveToTargetDirection = new Sequence();
+            moveToTargetDirection.AddChild(new SetMemoryVar<float>(UnitAIMemory.MoveDistance, 3.0f));
+            moveToTargetDirection.AddChild(new Vector3MultiplyByScalar(UnitAIMemory.TargetDirection, UnitAIMemory.MoveDistance, UnitAIMemory.TargetDirectionScaled));
+            moveToTargetDirection.AddChild(new SavePositionFromComponent(UnitAIMemory.Unit, UnitAIMemory.UnitPosition));
+            moveToTargetDirection.AddChild(new Vector3Add(UnitAIMemory.UnitPosition, UnitAIMemory.TargetDirectionScaled, UnitAIMemory.TargetPosition));
+            moveToTargetDirection.AddChild(new CheckPositionIsInAttackingZone(UnitAIMemory.Unit, UnitAIMemory.TargetPosition));
+            moveToTargetDirection.AddChild(new MoveUnitToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetPosition));
+
         //-- Check Ball is Close
         Sequence checkIfBallIsClose = new Sequence();
-            checkIfBallIsClose.AddChild(new SetMemoryVar<float>(UnitAIMemory.BallDistance, 6.0f));
             checkIfBallIsClose.AddChild(new SaveTransformFromComponent<Ball>(UnitAIMemory.Ball, UnitAIMemory.BallTransform));
-            checkIfBallIsClose.AddChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance));
-
-        Sequence checkIfBallIsVeryClose = new Sequence();
-            checkIfBallIsVeryClose.AddChild(new SetMemoryVar<float>(UnitAIMemory.BallDistance, 2.0f));
-            checkIfBallIsVeryClose.AddChild(new SaveTransformFromComponent<Ball>(UnitAIMemory.Ball, UnitAIMemory.BallTransform));
-            checkIfBallIsVeryClose.AddChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance));
+            checkIfBallIsClose.AddChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance, 2.0f));
 
         //-- FindAndSave Closest Ball
         Sequence findAndSaveClosestBallProperties = new Sequence();
@@ -54,37 +67,44 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
         //-- DistanceBallUnit Subtree
         Sequence checkUnitBallDistance = new Sequence();
-            checkUnitBallDistance.AddChild(new SavePositionFromComponent<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.PositionA));
-            checkUnitBallDistance.AddChild(new SavePositionFromComponent<Transform>(UnitAIMemory.BallTransform, UnitAIMemory.PositionB));
+            checkUnitBallDistance.AddChild(new SavePositionFromComponent(UnitAIMemory.Unit, UnitAIMemory.PositionA));
+            checkUnitBallDistance.AddChild(new SavePositionFromComponent(UnitAIMemory.BallTransform, UnitAIMemory.PositionB));
             checkUnitBallDistance.AddChild(new SetMemoryVar<float>(UnitAIMemory.MaxUnitBallDistance, 10.0f));
-            checkUnitBallDistance.AddChild(new CheckDistanceBetweenPositions(UnitAIMemory.PositionA, UnitAIMemory.PositionB, UnitAIMemory.MaxUnitBallDistance));
+            checkUnitBallDistance.AddChild(new CheckDistanceBetweenPositions(UnitAIMemory.PositionA, UnitAIMemory.PositionB, UnitAIMemory.MaxUnitBallDistance, 0f));
 
-        //-- Move to Ball Transform Subtree
-        Sequence moveToTheBall = new Sequence();
-        moveToTheBall.AddChild(new SetMemoryVar<float>(UnitAIMemory.BallDistance, 6.0f));
-        moveToTheBall.AddChild(new SaveTransformFromComponent<Ball>(UnitAIMemory.Ball, UnitAIMemory.BallTransform));
-            Parallel keepMovingTillClose = new Parallel(Parallel.ParallelPolicy.SUCCESS_IF_ONE, Parallel.ParallelPolicy.FAILURE_IF_ALL);
-                    keepMovingTillClose.AddChild(new MoveUnitToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform));
-                    UntilSuccess checkDistanceTillClose = new UntilSuccess();
-                        checkDistanceTillClose.SetChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance));
-                    keepMovingTillClose.AddChild(checkDistanceTillClose);
-        moveToTheBall.AddChild(keepMovingTillClose);
+        // Move to Ball Transform till Close
+        Parallel moveToBallTransform = new Parallel(Parallel.ParallelPolicy.SUCCESS_IF_ONE, Parallel.ParallelPolicy.FAILURE_IF_ALL);
+            moveToBallTransform.AddChild(new MoveUnitToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform));
+            UntilSuccess checkDistanceTillClose = new UntilSuccess();
+                checkDistanceTillClose.SetChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance, 0f));
+            moveToBallTransform.AddChild(checkDistanceTillClose);
+
+        // Move to Band End Position till Close
+        Parallel moveToBallEndPosition = new Parallel(Parallel.ParallelPolicy.SUCCESS_IF_ONE, Parallel.ParallelPolicy.FAILURE_IF_ALL);
+         moveToBallEndPosition.AddChild(new MoveUnitToPosition(UnitAIMemory.Unit, UnitAIMemory.BallEndPosition));
+        UntilSuccess checkDistanceToBallTransform = new UntilSuccess();
+            checkDistanceToBallTransform.SetChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance, 0f));
+         moveToBallEndPosition.AddChild(checkDistanceToBallTransform);
+
+        // Move if not close
+        Selector moveIfNotClose = new Selector();
+            moveIfNotClose.AddChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance, 3));
+            moveIfNotClose.AddChild(moveToBallTransform);
+
+        //-- Move to Ball Distace Transform Subtree
+        Sequence moveToBallTransformIfNotClose = new Sequence();
+            moveToBallTransformIfNotClose.AddChild(new SaveTransformFromComponent<Ball>(UnitAIMemory.Ball, UnitAIMemory.BallTransform));
+            moveToBallTransformIfNotClose.AddChild(moveIfNotClose);
 
         //-- Move to target Ball position and stop if close to ball
         Sequence moveToTargetPosition = new Sequence();
-            moveToTargetPosition.AddChild(new SetMemoryVar<float>(UnitAIMemory.BallDistance, 6.0f));
             moveToTargetPosition.AddChild(new SaveTransformFromComponent<Ball>(UnitAIMemory.Ball, UnitAIMemory.BallTransform));
-            Parallel keepMovingTillCloseToBall = new Parallel(Parallel.ParallelPolicy.SUCCESS_IF_ONE, Parallel.ParallelPolicy.FAILURE_IF_ALL);
-                     keepMovingTillCloseToBall.AddChild(new MoveUnitToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetBallPosition));
-                    UntilSuccess checkDistanceToBallTransform = new UntilSuccess();
-                        checkDistanceToBallTransform.SetChild(new CheckUnitDistanceToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform, UnitAIMemory.BallDistance));
-                     keepMovingTillCloseToBall.AddChild(checkDistanceToBallTransform);
-        moveToTargetPosition.AddChild(keepMovingTillCloseToBall);
+            moveToTargetPosition.AddChild(moveToBallEndPosition);
 
         Sequence checkBallIsMoving = new Sequence();
             checkBallIsMoving.AddChild(new SaveVelocityFromComponent(UnitAIMemory.Ball, UnitAIMemory.BallVelocity));
             checkBallIsMoving.AddChild(new CalculateMagnitudeFromVector(UnitAIMemory.BallVelocity, UnitAIMemory.BallVelocityMagnitude));
-            checkBallIsMoving.AddChild(new SetMemoryVar<float>(UnitAIMemory.MinBallVelocityMagnitude, 0.0f));
+            checkBallIsMoving.AddChild(new SetMemoryVar<float>(UnitAIMemory.MinBallVelocityMagnitude, 1.0f));
             checkBallIsMoving.AddChild(new GreaterThan(UnitAIMemory.BallVelocityMagnitude, UnitAIMemory.MinBallVelocityMagnitude));
 
         Sequence checkTransformIsGettingCloser = new Sequence();
@@ -121,7 +141,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         Sequence unsetBallControlled = new Sequence();
             unsetBallControlled.AddChild(new SetMemoryVar<bool>(UnitAIMemory.IsBallControlled, false));
             unsetBallControlled.AddChild(new Succeder().SetChild(removeUnitOwnerFromBall));
-            //unsetBallControlled.AddChild(new Succeder().SetChild(nullifyPossessionSquad));
 
         Sequence checkOwnerVarIsNull = new Sequence();
             checkOwnerVarIsNull.AddChild(new SaveOwnerToBall(UnitAIMemory.Ball, UnitAIMemory.TemporalUnit));
@@ -129,7 +148,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
         //-- Recover Possesion Subtree
         Sequence catchAndControllTheBall = new Sequence();
-            catchAndControllTheBall.AddChild(moveToTheBall);
+            catchAndControllTheBall.AddChild(moveToBallTransform);
             catchAndControllTheBall.AddChild(checkUnitBallDistance);
             catchAndControllTheBall.AddChild(setBallControlled);
 
@@ -143,42 +162,84 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             removeRecoverTheBallCoolDown.AddChild(new SetMemoryVar<float>(UnitAIMemory.RecoverPossessionCoolDownWaitTime, -1.0f));
             removeRecoverTheBallCoolDown.AddChild(new SetCoolDownTime(UnitAIMemory.RecoverPossessionCoolDownTimer, UnitAIMemory.RecoverPossessionCoolDownWaitTime));
 
-        // Try to recover the ball
-        Sequence tryToControllTheBall = new Sequence();
-            tryToControllTheBall.AddChild(findAndSaveClosestBallProperties);
-            tryToControllTheBall.AddChild(checkOwnerVarIsNull);
-            Sequence recoverClosestBall = new Sequence();
-                recoverClosestBall.AddChild(new GetClosestUnitToPosition(UnitAIMemory.Unit, UnitAIMemory.ClosestMateUnit, UnitAIMemory.BallPosition));
-                recoverClosestBall.AddChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.ClosestMateUnit));
-                GateMaxNumber gateMaxUnitsToRecoverBall = new GateMaxNumber(UnitAIMemory.NumUnitsToRecoverPossessionCounter, 1, GateMaxNumber.GatePolicy.FAIL_IF_UNAVAILABLE);
+        Sequence tryToClearCoolDownIfPasserIsNotUnit = new Sequence();
+            tryToClearCoolDownIfPasserIsNotUnit.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.BallPasserUnit)));
+            tryToClearCoolDownIfPasserIsNotUnit.AddChild(removeRecoverTheBallCoolDown);
+
+        Sequence recoverClosestBall = new Sequence();
+            recoverClosestBall.AddChild(new GetClosestUnitToPosition(UnitAIMemory.Unit, UnitAIMemory.ClosestMateUnit, UnitAIMemory.BallPosition));
+            recoverClosestBall.AddChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.ClosestMateUnit));
+            GateMaxNumber gateMaxUnitsToRecoverBall = new GateMaxNumber(UnitAIMemory.NumUnitsToRecoverPossessionCounter, 1, GateMaxNumber.GatePolicy.FAIL_IF_UNAVAILABLE);
                 gateMaxUnitsToRecoverBall.SetChild(catchAndControllTheBall);
-                recoverClosestBall.AddChild(gateMaxUnitsToRecoverBall);
-                recoverClosestBall.AddChild(setRecoverTheBallCoolDownTimer);
+            recoverClosestBall.AddChild(gateMaxUnitsToRecoverBall);
+            recoverClosestBall.AddChild(setRecoverTheBallCoolDownTimer);
+
+        // Try to recover the ball
+        Sequence recoverTheBall = new Sequence();
+            recoverTheBall.AddChild(findAndSaveClosestBallProperties);
+            recoverTheBall.AddChild(checkOwnerVarIsNull);
             CoolDown coolDownForRecoverPossession = new CoolDown(UnitAIMemory.RecoverPossessionCoolDownTimer, CoolDown.CoolDownPolicy.FAIL_IF_UNAVAILABLE);
                 coolDownForRecoverPossession.SetChild(recoverClosestBall);
-            tryToControllTheBall.AddChild(coolDownForRecoverPossession);
+        recoverTheBall.AddChild(new Succeder().SetChild(tryToClearCoolDownIfPasserIsNotUnit));
+        recoverTheBall.AddChild(coolDownForRecoverPossession);
 
         //-- Send Will Pass The Ball SubTree
-        Sequence sendWillPassTheBall = new Sequence();
-            sendWillPassTheBall.AddChild(new SetMemoryVar<float>(UnitAIMemory.MessageValidDuration, 1.0f));
-            sendWillPassTheBall.AddChild(new CreateWillPassTheBallMessage(UnitAIMemory.Unit, UnitAIMemory.TargetBallPosition, UnitAIMemory.MessageValidDuration, UnitAIMemory.CreatedMessage));
-            sendWillPassTheBall.AddChild(new SendMessageToUnit(UnitAIMemory.SelectedMateUnit, UnitAIMemory.CreatedMessage, UnitAIMemory.OnWillPassTheBall.Name));
-            //sendWillPassTheBall.AddChild(new LogAction("Message Sent"));
+        Sequence createOnBallPassedAndSaveOnSharedMemory = new Sequence();
+            createOnBallPassedAndSaveOnSharedMemory.AddChild(new SetMemoryVar<float>(UnitAIMemory.MessageValidDuration, 1.0f));
+            createOnBallPassedAndSaveOnSharedMemory.AddChild(new CreateWillPassTheBallMessage(UnitAIMemory.Unit, UnitAIMemory.SelectedMateUnit, UnitAIMemory.BallEndPosition, UnitAIMemory.Ball, UnitAIMemory.MessageValidDuration, UnitAIMemory.OnBallPassed));
+
+        Sequence passBallToSelectedMateUnit = new Sequence();
+            passBallToSelectedMateUnit.AddChild(new SaveTransformFromComponent<BaseUnit>(UnitAIMemory.SelectedMateUnit, UnitAIMemory.SelectedMateTransform));
+            passBallToSelectedMateUnit.AddChild(new FaceUnitToTransform(UnitAIMemory.Unit, UnitAIMemory.SelectedMateTransform));
+            passBallToSelectedMateUnit.AddChild(new SavePositionFromTransform(UnitAIMemory.SelectedMateTransform, UnitAIMemory.BallEndPosition));
+            passBallToSelectedMateUnit.AddChild(checkUnitBallDistance);
+            passBallToSelectedMateUnit.AddChild(createOnBallPassedAndSaveOnSharedMemory);
+            passBallToSelectedMateUnit.AddChild(new CalculateBallMaxHeight(UnitAIMemory.Ball, UnitAIMemory.BallEndPosition, UnitAIMemory.BallMaxHeight));
+            passBallToSelectedMateUnit.AddChild(new PassBallToPosition(UnitAIMemory.Unit, UnitAIMemory.Ball, UnitAIMemory.BallEndPosition, UnitAIMemory.BallMaxHeight));
+            passBallToSelectedMateUnit.AddChild(new CopyMemoryVar(UnitAIMemory.Unit, UnitAIMemory.BallPasserUnit));
 
         //-- Pass The Ball Subtree
         Sequence easyBallPass = new Sequence();
             easyBallPass.AddChild(new SelectEasiestUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.SelectedMateUnit));
-            easyBallPass.AddChild(new SaveTransformFromComponent<BaseUnit>(UnitAIMemory.SelectedMateUnit, UnitAIMemory.SelectedMateTransform));
-            easyBallPass.AddChild(new FaceUnitToTransform(UnitAIMemory.Unit, UnitAIMemory.SelectedMateTransform));
-            easyBallPass.AddChild(new SavePositionFromTransform(UnitAIMemory.SelectedMateTransform, UnitAIMemory.TargetBallPosition));
-            easyBallPass.AddChild(checkUnitBallDistance);
-            easyBallPass.AddChild(sendWillPassTheBall);
-            easyBallPass.AddChild(new PassBallToPosition(UnitAIMemory.Unit, UnitAIMemory.Ball, UnitAIMemory.TargetBallPosition));
+            easyBallPass.AddChild(passBallToSelectedMateUnit);
 
+        Sequence forwardPass = new Sequence();
+            forwardPass.AddChild(findTargetDirection);
+            forwardPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.TargetDirection, UnitAIMemory.SelectedMateUnit));
+            forwardPass.AddChild(passBallToSelectedMateUnit);
+
+        Sequence calculateLeftDirection = new Sequence();
+            calculateLeftDirection.AddChild(findTargetDirection);
+            calculateLeftDirection.AddChild(new SetMemoryVar<Vector3>(UnitAIMemory.UpVector, Vector3.up));
+            calculateLeftDirection.AddChild(new Vector3Cross(UnitAIMemory.TargetDirection, UnitAIMemory.UpVector, UnitAIMemory.LeftDirection));
+            calculateLeftDirection.AddChild(new Vector3Normalize(UnitAIMemory.LeftDirection, UnitAIMemory.LeftDirection));
+
+        Sequence leftPass = new Sequence();
+            leftPass.AddChild(calculateLeftDirection);
+            leftPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.LeftDirection, UnitAIMemory.SelectedMateUnit));
+            leftPass.AddChild(passBallToSelectedMateUnit);
+
+        Sequence rightPass = new Sequence();
+            rightPass.AddChild(calculateLeftDirection);
+            rightPass.AddChild(new Vector3Invert(UnitAIMemory.LeftDirection, UnitAIMemory.RightDirection));
+            rightPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.RightDirection, UnitAIMemory.SelectedMateUnit));
+            rightPass.AddChild(passBallToSelectedMateUnit);
+
+        RandomSelector sidePass = new RandomSelector();
+            sidePass.AddChild(leftPass);
+            sidePass.AddChild(rightPass);
+
+        Sequence randomBallPass = new Sequence();
+            randomBallPass.AddChild(new SelectRandomUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.SelectedMateUnit));
+            randomBallPass.AddChild(passBallToSelectedMateUnit);
+        
         // Try to pass the ball
         Sequence tryToPassTheBall = new Sequence();
             tryToPassTheBall.AddChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar));
-            tryToPassTheBall.AddChild(new Succeder().SetChild(easyBallPass));
+            //tryToPassTheBall.AddChild(new Succeder().SetChild(easyBallPass));
+            //tryToPassTheBall.AddChild(new Succeder().SetChild(forwardPass));
+            //tryToPassTheBall.AddChild(new Succeder().SetChild(rightPass));
+            tryToPassTheBall.AddChild(new Succeder().SetChild(randomBallPass));
             tryToPassTheBall.AddChild(unsetBallControlled);
 
         //-- Prepare to Receive the ball to point
@@ -186,46 +247,41 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             faceBall.AddChild(new SaveTransformFromComponent<Ball>(UnitAIMemory.Ball, UnitAIMemory.BallTransform));
             faceBall.AddChild(new FaceUnitToTransform(UnitAIMemory.Unit, UnitAIMemory.BallTransform));
 
-        //-- try to save ball from unit Subtree
-        Sequence saveBallFromUnit = new Sequence();
-            saveBallFromUnit.AddChild(new SaveBallFromPossesionUnit(UnitAIMemory.PossessionMateUnit, UnitAIMemory.TemporalBall));
-            saveBallFromUnit.AddChild(new CheckNotNullMemoryVar(UnitAIMemory.TemporalBall));
-            saveBallFromUnit.AddChild(new MoveMemoryVar(UnitAIMemory.TemporalBall, UnitAIMemory.Ball));
-
         // Wait till ball is close
         ActiveSequence waitWhileBallIsComingTillIsClose = new ActiveSequence();
                 UntilSuccess keepWaittingTillBallIsClose = new UntilSuccess();
-                    keepWaittingTillBallIsClose.SetChild(checkIfBallIsVeryClose); //checkIfBallIsClose
+            keepWaittingTillBallIsClose.SetChild(checkIfBallIsClose);
             waitWhileBallIsComingTillIsClose.AddChild(checkBallIsMovingAndGettingCloser);
             waitWhileBallIsComingTillIsClose.AddChild(keepWaittingTillBallIsClose);
 
         //-- tryToReactToBallPassMessage Subtree
         Sequence tryToReactToBallPassMessage = new Sequence();
-            tryToReactToBallPassMessage.AddChild(new CheckKnowledgeStatus(UnitAIMemory.OnWillPassTheBall, KnowledgeStatus.NEW));
-            tryToReactToBallPassMessage.AddChild(new CheckAIMessageIsValidOrRemove(UnitAIMemory.OnWillPassTheBall));
+            tryToReactToBallPassMessage.AddChild(new CheckKnowledgeStatus(UnitAIMemory.OnBallPassed, KnowledgeStatus.NEW));
+            tryToReactToBallPassMessage.AddChild(new CheckAIMessageIsValidOrRemove(UnitAIMemory.OnBallPassed));
+            tryToReactToBallPassMessage.AddChild(new SaveOnBallPassedProperties(UnitAIMemory.OnBallPassed, UnitAIMemory.BallEndPosition, UnitAIMemory.PossessionMateUnit, UnitAIMemory.BallTargetMateUnit, UnitAIMemory.Ball));
+            tryToReactToBallPassMessage.AddChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.BallTargetMateUnit));
             tryToReactToBallPassMessage.AddChild(removeRecoverTheBallCoolDown);
-            tryToReactToBallPassMessage.AddChild(new SetKnowledgeStatus(UnitAIMemory.OnWillPassTheBall, KnowledgeStatus.PROCESSED));
-            tryToReactToBallPassMessage.AddChild(new SaveOnWillPassTheBallProperties(UnitAIMemory.OnWillPassTheBall, UnitAIMemory.TargetBallPosition, UnitAIMemory.PossessionMateUnit));
-            tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(saveBallFromUnit));
+            tryToReactToBallPassMessage.AddChild(new SetKnowledgeStatus(UnitAIMemory.OnBallPassed, KnowledgeStatus.PROCESSED));
             tryToReactToBallPassMessage.AddChild(faceBall);
             tryToReactToBallPassMessage.AddChild(moveToTargetPosition);
             tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(waitWhileBallIsComingTillIsClose));
-            tryToReactToBallPassMessage.AddChild(new RemoveMemoryVar(UnitAIMemory.OnWillPassTheBall));
+            tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(new RemoveMessageIfNotNew(UnitAIMemory.OnBallPassed)));
 
         //* What to do when team have ball posession
-            // try to recover the ball if noone has it controlled
-            // try to react to Ball Pass Message (Active Selector ?)
             // Do something if I have not the ball controlled
                 // Choose between
+                    // try to recover the ball if noone has it controlled
+                    // try to react to Ball Pass Message (Active Selector ?)
                     // Try to Move to a valid position where the ball controller can pass me the ball
-                    // Try to go up to the target goal
-                    // Try to go down to move the ball
+                        // Try to go up to the target goal
+                        // Try to go down to move the ball
+                    // Go to defensive position (to cover counter attack)
             // Do something if I have the ball controlled
                 // Choose between
                     // try to move forward
                     // try to pass the ball
                         // easy pass
-                        // long pass
+                        // forward pass
                     // try to shoot to the goal
         //* What to do when the enemy have ball posession
             // try to chase the target controller if he is close enough
@@ -235,25 +291,93 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             // Try to recover posession
                 // Try to chase the ball
 
+        // Try to Move To A Passing Position
+        Sequence tryMovingToAPassingPosition = new Sequence();
+            tryMovingToAPassingPosition.AddChild(findTargetDirection);
+            tryMovingToAPassingPosition.AddChild(moveToTargetDirection);
+
+        // Checl On Ball Passed Notificaton is not valid
+        Selector checkOnBallPassedIsDoneOrNullOrInvalid = new Selector();
+            checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckNullMemoryVar(UnitAIMemory.OnBallPassed));
+            checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckKnowledgeStatus(UnitAIMemory.OnBallPassed, KnowledgeStatus.DONE));
+            checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new Inverter().SetChild(checkBallIsMoving));
+
+        Sequence tryToRecoverTheBallWhenAttacking = new Sequence();
+            tryToRecoverTheBallWhenAttacking.AddChild(checkOnBallPassedIsDoneOrNullOrInvalid);
+            tryToRecoverTheBallWhenAttacking.AddChild(recoverTheBall);
+            
+        // Choose Attack without Ball
+        Selector chooseAttackWithoutBall = new Selector();
+            chooseAttackWithoutBall.AddChild(tryToReactToBallPassMessage);
+            chooseAttackWithoutBall.AddChild(tryToRecoverTheBallWhenAttacking);
+            chooseAttackWithoutBall.AddChild(tryMovingToAPassingPosition);
+
+        // Attack without ball controlled
+        Sequence tryToAttackWithoutBall = new Sequence();
+            tryToAttackWithoutBall.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar)));
+            tryToAttackWithoutBall.AddChild(chooseAttackWithoutBall);
+
+        // Move with Ball Step
+        Sequence moveWithBallStep =  new Sequence();
+            moveWithBallStep.AddChild(moveToBallTransformIfNotClose);
+            moveWithBallStep.AddChild(new SavePositionFromTransform(UnitAIMemory.BallTransform, UnitAIMemory.BallPosition));
+            moveWithBallStep.AddChild(new Vector3StepToPosition(UnitAIMemory.BallPosition, UnitAIMemory.TargetPosition, UnitAIMemory.BallEndPosition, 6));
+            moveWithBallStep.AddChild(new SetMemoryVar<float>(UnitAIMemory.BallMaxHeight, 0f));
+            moveWithBallStep.AddChild(new PassBallToPosition(UnitAIMemory.Unit, UnitAIMemory.Ball, UnitAIMemory.BallEndPosition, UnitAIMemory.BallMaxHeight));
+            //moveWithBallStep.AddChild(new TimeWaiter(0.1f));
+        
+        UntilFail keepMovingWithBallStep = new UntilFail();
+            keepMovingWithBallStep.SetChild(moveWithBallStep);
+        
+        Parallel moveWithBallToTargetPosition = new Parallel(Parallel.ParallelPolicy.SUCCESS_IF_ONE, Parallel.ParallelPolicy.FAILURE_IF_ALL);
+            moveWithBallToTargetPosition.AddChild(keepMovingWithBallStep);
+            moveWithBallToTargetPosition.AddChild(new CheckDistanceFromComponentToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetPosition, UnitAIMemory.BallDistance, 0f));
+        
+        Selector moveToTargetPositionWithBallIfCloseOrDoNothing = new Selector();
+            moveToTargetPositionWithBallIfCloseOrDoNothing.AddChild(new CheckDistanceFromComponentToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetPosition, UnitAIMemory.BallDistance, 2f));
+            moveToTargetPositionWithBallIfCloseOrDoNothing.AddChild(moveWithBallToTargetPosition);
+        
+        Sequence moveForwardWithBall = new Sequence();
+            moveForwardWithBall.AddChild(new SetMemoryVar<float>(UnitAIMemory.MoveDistance, 30.0f));
+            moveForwardWithBall.AddChild(new Vector3MultiplyByScalar(UnitAIMemory.TargetDirection, UnitAIMemory.MoveDistance, UnitAIMemory.TargetDirectionScaled));
+            moveForwardWithBall.AddChild(new SavePositionFromComponent(UnitAIMemory.Unit, UnitAIMemory.UnitPosition));
+            moveForwardWithBall.AddChild(new Vector3Add(UnitAIMemory.UnitPosition, UnitAIMemory.TargetDirectionScaled, UnitAIMemory.TargetPosition)); // ******** The other 3ADD it should  also use targetr direction scaled !!!
+            moveForwardWithBall.AddChild(new CheckPositionIsInAttackingZone(UnitAIMemory.Unit, UnitAIMemory.TargetPosition));
+            moveForwardWithBall.AddChild(moveToTargetPositionWithBallIfCloseOrDoNothing);
+        
+        Sequence tryMovingWithBallToAForwardPosition = new Sequence();
+            tryMovingWithBallToAForwardPosition.AddChild(findTargetDirection);
+            tryMovingWithBallToAForwardPosition.AddChild(moveForwardWithBall);
+
+        Selector attackWithBall = new Selector();
+            //attackWithBall.AddChild(tryToPassTheBall);
+            attackWithBall.AddChild(tryMovingWithBallToAForwardPosition);
+
+        // Attack with ball controlled
+        Sequence tryToAttackWithBall = new Sequence();
+            tryToAttackWithBall.AddChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar));
+            tryToAttackWithBall.AddChild(attackWithBall);
+
+        // Choose attack type
+        Selector chooseAttack = new Selector();
+            chooseAttack.AddChild(tryToAttackWithBall);
+            chooseAttack.AddChild(tryToAttackWithoutBall);
+
         Sequence tryToAttack = new Sequence();
             tryToAttack.AddChild(new CheckAreEqualMemoryVars<BaseSquad>(UnitAIMemory.g_PossessionSquad, UnitAIMemory.Squad));
-            Selector chooseAttack = new Selector();
-                chooseAttack.AddChild(tryToReactToBallPassMessage);
-                chooseAttack.AddChild(tryToControllTheBall);
-                chooseAttack.AddChild(tryToPassTheBall);
-            tryToAttack.AddChild(chooseAttack);
+                tryToAttack.AddChild(chooseAttack);
 
         Sequence tryToDefend = new Sequence();
             tryToDefend.AddChild(new Failure());
 
-        Sequence tryToRecoverTheBall = new Sequence();
-            tryToRecoverTheBall.AddChild(new CheckNullMemoryVar(UnitAIMemory.g_PossessionSquad));
-            tryToRecoverTheBall.AddChild(tryToControllTheBall);
+        Sequence tryToRecoverPosession = new Sequence();
+            tryToRecoverPosession.AddChild(new CheckNullMemoryVar(UnitAIMemory.g_PossessionSquad));
+            tryToRecoverPosession.AddChild(recoverTheBall);
 
-            // Main AIs subtipes
+            // Main AIs subtypes
             mainAI.AddChild(tryToAttack);
             mainAI.AddChild(tryToDefend);
-            mainAI.AddChild(tryToRecoverTheBall);
+            mainAI.AddChild(tryToRecoverPosession);
 
         _bt = new BehaviorTree();
 
@@ -266,6 +390,8 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         _bt.SetMemoryObject(UnitAIMemory.Unit, _unit);
         _bt.SetMemoryObject(UnitAIMemory.Squad, _unit.Squad);
         _bt.SetMemoryObject(UnitAIMemory.TrueVar, true);
+        _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
+        _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);
         
         _bt.Init(mainAI);
         return _bt;

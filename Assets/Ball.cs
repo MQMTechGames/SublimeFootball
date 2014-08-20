@@ -16,11 +16,20 @@ public class Ball : MonoBehaviour
         DebugUtils.Assert(_rigidbody != null, "_rigidbody != null");
     }
 
-    public void KickToPosition( Vector3 destination )
+    public void KickToPosition( Vector3 destination, float maxHeight )
     {
         Owner = null;
 
-        Vector3 vel = ParabolicShot.CalculateVelocity(50f, destination - transform.position);
+        Vector3 vel;
+        if(maxHeight == 0f)
+        {
+            vel = (destination - transform.position).normalized * 5f;
+        }
+        else
+        {
+            vel = ParabolicShot.CalculateVelocity(maxHeight, destination - transform.position);
+        }
+
         _rigidbody.velocity = vel;
     }
 

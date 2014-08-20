@@ -11,9 +11,6 @@ public class BaseUnit : MonoBehaviour
     BaseSquad _squad;
     public BaseSquad Squad { get{ return _squad; } }
 
-    [SerializeField] // Temporally
-    bool _havePosession;
-
     Match _match;
 
     Ball _controlledBall;
@@ -46,40 +43,24 @@ public class BaseUnit : MonoBehaviour
         _unitAI.SendAIMessage(messageName, message);
     }
 
-    public void OnBallControlled(Ball ball)
-    {
-        _havePosession = true;
-        _controlledBall = ball;
-
-        _controlledBall.OnBeingControlled(this);
-
-        _squad.OnBallControlled();
-    }
-
-    public void OnBallLost()
-    {
-        _havePosession = false;
-        _squad.OnBallLost();
-    }
-
-    public bool HavePosession()
-    {
-        return _havePosession;
-    }
-
-    public bool HaveSquadPosession()
-    {
-        return _squad.HaveSquadPosession();
-    }
-
     public BaseUnit GetClosestUnitToPosition(Vector3 position)
     {
         return _squad.GetClosestUnitToBall(position);
     }
 
-    public BaseUnit GetEasiestUnitToPassTheBall()
+    public BaseUnit SelectEasiestUnitToPassTheBall()
     {
-        return _squad.GetEasiestUnitToPassTheBall(this);
+        return _squad.SelectEasiestUnitToPassTheBall(this);
+    }
+
+    public BaseUnit SelectRandomUnitToPassTheBall()
+    {
+        return _squad.SelectRandomUnitToPassTheBall(this);
+    }
+
+    public BaseUnit SelectForwardUnitToPassTheBall(Vector3 forwardDirectoin)
+    {
+        return _squad.SelectForwardUnitToPassTheBall(this, forwardDirectoin);
     }
 
     public bool IsMoving()
@@ -87,9 +68,9 @@ public class BaseUnit : MonoBehaviour
         return _mover.IsMoving();
     }
 
-    public void PassBallToPosition(Vector3 position, Ball ball)
+    public void PassBallToPosition(Vector3 position, float maxHeight, Ball ball)
     {
-        ball.KickToPosition(position);
+        ball.KickToPosition(position, maxHeight);
     }
 
     public Ball GetControlledBall()
@@ -100,5 +81,14 @@ public class BaseUnit : MonoBehaviour
     public Ball FindClosestBall()
     {
         return _match.FindClosestBallToPosition(transform.position);
+    }
+    public Goal FindGoal()
+    {
+        return _squad.FindGoal();
+    }
+
+    public bool CheckPositionIsInAttackingZone(Vector3 position)
+    {
+        return true;
     }
 }

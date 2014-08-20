@@ -6,8 +6,8 @@ public class BaseSquad : MonoBehaviour
     [SerializeField]
     BaseUnit[] _units;
 
-    [SerializeField] // Serialized temporally
-    bool _havePosession;
+    [SerializeField]
+    Goal _goal;
 
     Match _match;
 
@@ -21,21 +21,6 @@ public class BaseSquad : MonoBehaviour
 
         _match = FindObjectOfType<Match>();
         DebugUtils.Assert(_match !=null, "_match !=null");
-    }
-
-    public void OnBallLost()
-    {
-        _havePosession = false;
-    }
-
-    public void OnBallControlled()
-    {
-        _havePosession = true;
-    }
-
-    public bool HaveSquadPosession()
-    {
-        return _havePosession;
     }
 
     public BaseUnit GetClosestUnitToBall(Vector3 position)
@@ -59,9 +44,9 @@ public class BaseSquad : MonoBehaviour
         return closestUnit;
     }
 
-    public BaseUnit GetEasiestUnitToPassTheBall(BaseUnit passerUnit)
+    public BaseUnit SelectEasiestUnitToPassTheBall(BaseUnit passerUnit)
     {
-        DebugUtils.Assert(_units.Length > 0);
+        DebugUtils.Assert(_units.Length > 1);
         
         float closestDist = float.MaxValue;
         BaseUnit closestUnit = null;
@@ -85,5 +70,51 @@ public class BaseSquad : MonoBehaviour
         }
         
         return closestUnit;
+    }
+
+    public BaseUnit SelectForwardUnitToPassTheBall(BaseUnit passerUnit, Vector3 forwardDirection)
+    {
+        DebugUtils.Assert(_units.Length > 1);
+        
+        float closestDist = float.MinValue;
+        BaseUnit closestUnit = null;
+        
+        Vector3 passerPosition = passerUnit.transform.position;
+        
+        foreach (BaseUnit unit in _units)
+        {
+            if(unit == passerUnit)
+            {
+                continue;
+            }
+            
+            float dotResult = Vector3.Dot(unit.transform.position, forwardDirection);
+            if(dotResult > closestDist)
+            {
+                closestDist = dotResult;
+                closestUnit = unit;
+            }
+        }
+        
+        return closestUnit;
+    }
+
+    public BaseUnit SelectRandomUnitToPassTheBall(BaseUnit passerUnit)
+    {
+        DebugUtils.Assert(_units.Length > 1);
+
+        BaseUnit selected = null;
+        while(selected == null || selected == passerUnit)
+        {
+            int idx = Random.Range(0, _units.Length);
+            selected = _units[idx];
+        }
+
+        return selected;
+    }
+
+    public Goal FindGoal()
+    {
+        return _goal;
     }
 }

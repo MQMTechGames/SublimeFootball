@@ -27,4 +27,35 @@ namespace MQMTech.AI.Mover.Action
             return message.IsValid() ? Status.SUCCESS : Status.FAILURE;
         }
     }
+
+    [System.Serializable]
+    public class RemoveMessageIfNotNew : Behavior
+    {
+        AIMemoryKey _messageKey;
+        
+        public RemoveMessageIfNotNew(AIMemoryKey messageKey)
+        {
+            _messageKey = messageKey;
+        }
+        
+        public override Status Update()
+        {
+            AIMessage message;
+            _bt.GetMemoryObject(_messageKey, out message);
+            
+            if(message == null)
+            {
+                return Status.FAILURE;
+            }
+
+            if(message.Status == KnowledgeStatus.NEW)
+            {
+                return Status.FAILURE;
+            }
+
+            _bt.RemoveMemoryObject(_messageKey);
+
+            return Status.SUCCESS;
+        }
+    }
 }
