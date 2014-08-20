@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{CD70EB49-BA14-A7B2-6D36-CD648F266611}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+	<BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_GENERICS;ENABLE_SUBSTANCE;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_3_3;UNITY_4_3;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="System.Xml.Linq" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\BT\AIMemoryKey.cs" />
+     <Compile Include="Assets\BT\BehaviorTree.cs" />
+     <Compile Include="Assets\BT\BehaviorTreeViewer.cs" />
+     <Compile Include="Assets\BT\IBehaviorWithTree.cs" />
+     <Compile Include="Assets\BT\Memory.cs" />
+     <Compile Include="Assets\BT\MemoryManager.cs" />
+     <Compile Include="Assets\Ball.cs" />
+     <Compile Include="Assets\CameraController.cs" />
+     <Compile Include="Assets\CommandTester.cs" />
+     <Compile Include="Assets\FIFO\SimpleList.cs" />
+     <Compile Include="Assets\Knowledge\BaseKnowledge.cs" />
+     <Compile Include="Assets\Knowledge\KnowledgeActions.cs" />
+     <Compile Include="Assets\Knowledge\Message\AIMessage.cs" />
+     <Compile Include="Assets\Knowledge\Message\OnWillPassTheBall.cs" />
+     <Compile Include="Assets\Match.cs" />
+     <Compile Include="Assets\RandomMovement.cs" />
+     <Compile Include="Assets\SharedMemory.cs" />
+     <Compile Include="Assets\Shots\ParabolicShot.cs" />
+     <Compile Include="Assets\Squad\BaseSquad.cs" />
+     <Compile Include="Assets\TestCustomMover.cs" />
+     <Compile Include="Assets\TestNavMeshAgent.cs" />
+     <Compile Include="Assets\Unit\BaseUnit.cs" />
+     <Compile Include="Assets\Unit\BaseUnitAI.cs" />
+     <Compile Include="Assets\Unit\BaseUnitMover.cs" />
+     <Compile Include="Assets\Unit\DemoUnit.cs" />
+     <Compile Include="Assets\Unit\DemoUnitBTBuilder.cs" />
+     <Compile Include="Assets\Unit\IBTBuilder.cs" />
+     <Compile Include="Assets\Unit\Knowledge\FaceToCommand.cs" />
+     <Compile Include="Assets\Unit\Knowledge\MoveToCommand.cs" />
+     <Compile Include="Assets\Unit\Mover\AIMeesageActions.cs" />
+     <Compile Include="Assets\Unit\Mover\BaseMover.cs" />
+     <Compile Include="Assets\Unit\Mover\FootballerBTActions.cs" />
+     <Compile Include="Assets\Unit\Mover\ListActions.cs" />
+     <Compile Include="Assets\Unit\Mover\MathActions.cs" />
+     <Compile Include="Assets\Unit\Mover\MoverBTActions.cs" />
+     <Compile Include="Assets\Unit\Mover\SimpleUnitMoverBuilder.cs" />
+     <Compile Include="Assets\Unit\UnitAIMemory.cs" />
+     <Compile Include="Assets\Utils\DebugUtils.cs" />
+     <Compile Include="Assets\Utils\GameObjectUtils.cs" />
+     <Compile Include="Assets\Utils\Timer.cs" />
+     <None Include="Assets\Render\Shaders\Noise.cginc" />
+     <None Include="Assets\Render\Shaders\SupportScorePanel.shader" />
+     <None Include="Assets\Render\Shaders\Waterline.shader" />
+     <None Include="Assets\Render\Shaders\Footballer.shader" />
+     <None Include="Assets\Render\Shaders\RealBadge.cginc" />
+     <None Include="Assets\Render\Shaders\Field.shader" />
+     <None Include="Assets\Render\Shaders\Raytracing.shader" />
+     <None Include="Assets\Render\Shaders\Water.shader" />
+     <None Include="Assets\Render\Shaders\Skybox.shader" />
+     <None Include="Assets\Render\Shaders\ScorePanel.shader" />
+     <None Include="Assets\Render\Shaders\DistanceFields.cginc" />
+     <None Include="Assets\Render\Shaders\LightTowerBase.shader" />
+     <None Include="Assets\Render\Shaders\SquareGrassField.shader" />
+     <None Include="Assets\Render\Shaders\ShaderFilters.cginc" />
+     <None Include="Assets\Render\Shaders\LightTowerTorch.shader" />
+     <None Include="Assets\Render\Shaders\Ball.shader" />
+     <None Include="Assets\Render\Shaders\CircularLinesField.shader" />
+     <None Include="Assets\Render\Shaders\Bench.shader" />
+     <None Include="Assets\Render\Shaders\Terrain.shader" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
