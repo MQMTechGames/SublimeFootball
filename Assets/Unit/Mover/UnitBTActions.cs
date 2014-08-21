@@ -1107,7 +1107,7 @@ namespace MQMTech.AI.Mover.Action
             }
             else
             {
-                Vector2 dirXZ = Vector3Utils.ToDirXZ(src, dst);
+                Vector2 dirXZ = Vector3Utils.ToDirXZ(dst, src);
                 float mag = dirXZ.magnitude;
                 mag = Mathf.Min(mag, _step);
 

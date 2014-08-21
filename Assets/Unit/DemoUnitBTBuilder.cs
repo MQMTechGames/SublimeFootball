@@ -317,41 +317,39 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToAttackWithoutBall.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar)));
             tryToAttackWithoutBall.AddChild(chooseAttackWithoutBall);
 
-        // Move with Ball Step
+        //-- Move with Ball Step
+        #region MoveWithBall
         Sequence moveWithBallStep =  new Sequence();
-            moveWithBallStep.AddChild(moveToBallTransformIfNotClose);
+            moveWithBallStep.AddChild(moveToBallTransform);
             moveWithBallStep.AddChild(new SavePositionFromTransform(UnitAIMemory.BallTransform, UnitAIMemory.BallPosition));
-            moveWithBallStep.AddChild(new Vector3StepToPosition(UnitAIMemory.BallPosition, UnitAIMemory.TargetPosition, UnitAIMemory.BallEndPosition, 6));
+            moveWithBallStep.AddChild(new Vector3StepToPosition(UnitAIMemory.BallPosition, UnitAIMemory.TargetPosition, UnitAIMemory.BallEndPosition, 10));
             moveWithBallStep.AddChild(new SetMemoryVar<float>(UnitAIMemory.BallMaxHeight, 0f));
             moveWithBallStep.AddChild(new PassBallToPosition(UnitAIMemory.Unit, UnitAIMemory.Ball, UnitAIMemory.BallEndPosition, UnitAIMemory.BallMaxHeight));
-            //moveWithBallStep.AddChild(new TimeWaiter(0.1f));
-        
+
         UntilFail keepMovingWithBallStep = new UntilFail();
             keepMovingWithBallStep.SetChild(moveWithBallStep);
-        
-        Parallel moveWithBallToTargetPosition = new Parallel(Parallel.ParallelPolicy.SUCCESS_IF_ONE, Parallel.ParallelPolicy.FAILURE_IF_ALL);
+
+        ActiveSelector moveWithBallToTargetPosition = new ActiveSelector();
+            moveWithBallToTargetPosition.AddChild(new CheckDistanceFromComponentToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetPosition, UnitAIMemory.BallDistance, 2f));
             moveWithBallToTargetPosition.AddChild(keepMovingWithBallStep);
-            moveWithBallToTargetPosition.AddChild(new CheckDistanceFromComponentToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetPosition, UnitAIMemory.BallDistance, 0f));
-        
-        Selector moveToTargetPositionWithBallIfCloseOrDoNothing = new Selector();
-            moveToTargetPositionWithBallIfCloseOrDoNothing.AddChild(new CheckDistanceFromComponentToPosition(UnitAIMemory.Unit, UnitAIMemory.TargetPosition, UnitAIMemory.BallDistance, 2f));
-            moveToTargetPositionWithBallIfCloseOrDoNothing.AddChild(moveWithBallToTargetPosition);
         
         Sequence moveForwardWithBall = new Sequence();
             moveForwardWithBall.AddChild(new SetMemoryVar<float>(UnitAIMemory.MoveDistance, 30.0f));
             moveForwardWithBall.AddChild(new Vector3MultiplyByScalar(UnitAIMemory.TargetDirection, UnitAIMemory.MoveDistance, UnitAIMemory.TargetDirectionScaled));
             moveForwardWithBall.AddChild(new SavePositionFromComponent(UnitAIMemory.Unit, UnitAIMemory.UnitPosition));
-            moveForwardWithBall.AddChild(new Vector3Add(UnitAIMemory.UnitPosition, UnitAIMemory.TargetDirectionScaled, UnitAIMemory.TargetPosition)); // ******** The other 3ADD it should  also use targetr direction scaled !!!
+            moveForwardWithBall.AddChild(new Vector3Add(UnitAIMemory.UnitPosition, UnitAIMemory.TargetDirectionScaled, UnitAIMemory.TargetPosition));
             moveForwardWithBall.AddChild(new CheckPositionIsInAttackingZone(UnitAIMemory.Unit, UnitAIMemory.TargetPosition));
-            moveForwardWithBall.AddChild(moveToTargetPositionWithBallIfCloseOrDoNothing);
+            moveForwardWithBall.AddChild(moveWithBallToTargetPosition);
         
         Sequence tryMovingWithBallToAForwardPosition = new Sequence();
             tryMovingWithBallToAForwardPosition.AddChild(findTargetDirection);
             tryMovingWithBallToAForwardPosition.AddChild(moveForwardWithBall);
+        #endregion MoveWithBall
 
-        Selector attackWithBall = new Selector();
-            //attackWithBall.AddChild(tryToPassTheBall);
+        RandomSelector attackWithBall = new RandomSelector();
+            attackWithBall.AddChild(tryToPassTheBall);
             attackWithBall.AddChild(tryMovingWithBallToAForwardPosition);
+            //attackWithBall.AddChild(tryToShoot);
 
         // Attack with ball controlled
         Sequence tryToAttackWithBall = new Sequence();
