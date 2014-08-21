@@ -160,13 +160,15 @@ namespace MQMTech.AI.BT
     		}
     	}
 
-    	void RenderMemoryVariables(int xOffset, ref int yOffset, Dictionary<string, object> map)
+    	void RenderMemoryVariables(int xOffset, ref int yOffset, Dictionary<int, object> map)
     	{
     		yOffset += 20;
 
-    		foreach (KeyValuePair<string, System.Object> keyPair in map) 
+    		foreach (KeyValuePair<int, System.Object> keyPair in map) 
     		{
-                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), keyPair.Key);
+                int key = keyPair.Key;
+                string keyName = MemoryKeysHashCodeManager.GetMemoryNameByHashCode(key);
+                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), keyName);
 
                 object value = keyPair.Value;
                 string valueString = value == null ? "null" : value.ToString();

@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using MQMTech.AI;
-using MQMTech.AI.Knowledge;
-using MQMTech.Unit.Mover;
 
 [RequireComponent(typeof(BaseMover), typeof(BaseUnitAI))]
 public class BaseUnit : MonoBehaviour
@@ -70,7 +68,12 @@ public class BaseUnit : MonoBehaviour
 
     public void PassBallToPosition(Vector3 position, float maxHeight, Ball ball)
     {
-        ball.KickToPosition(position, maxHeight);
+        ball.PassToPosition(position, maxHeight);
+    }
+
+    public void ShootToPosition(Vector3 position, float strength, Ball ball)
+    {
+        ball.ShootToPosition(position, strength);
     }
 
     public Ball GetControlledBall()
@@ -90,5 +93,10 @@ public class BaseUnit : MonoBehaviour
     public bool CheckPositionIsInAttackingZone(Vector3 position)
     {
         return true;
+    }
+
+    public Vector3 SelectGoalShootPosition(Goal goal)
+    {
+        return goal.GetRandomGoalPosition();
     }
 }

@@ -12,6 +12,7 @@ public struct AIMemoryKey
 
     public ContextType Context { get; private set; }
     public string Name { get; private set; }
+    public int HashCode { get; private set; }
 
     public AIMemoryKey(string name)
         :this(name, ContextType.Unit)
@@ -22,5 +23,7 @@ public struct AIMemoryKey
     {
         Name = name;
         Context = context;
+
+        HashCode = MemoryKeysHashCodeManager.RegisterMemoryKey(this);
     }
 }

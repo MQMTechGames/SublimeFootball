@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
@@ -24,7 +24,7 @@ public class Ball : MonoBehaviour
         DebugUtils.Assert(_rigidbody != null, "_rigidbody != null");
     }
 
-    public void KickToPosition( Vector3 destination, float maxHeight )
+    public void PassToPosition( Vector3 destination, float maxHeight )
     {
         Owner = null;
 
@@ -38,6 +38,14 @@ public class Ball : MonoBehaviour
             vel = ParabolicShot.CalculateVelocity(maxHeight, destination - transform.position);
         }
 
+        _rigidbody.velocity = vel;
+    }
+    public void ShootToPosition( Vector3 destination, float strength )
+    {
+        Owner = null;
+        
+        Vector3 vel = (destination - transform.position).normalized * strength;
+        
         _rigidbody.velocity = vel;
     }
 

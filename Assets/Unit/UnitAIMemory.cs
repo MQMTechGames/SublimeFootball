@@ -82,6 +82,8 @@ public static class UnitAIMemory
     // Goal
     public static AIMemoryKey Goal = new AIMemoryKey("Goal", AIMemoryKey.ContextType.Squad);
     public static AIMemoryKey GoalPosition = new AIMemoryKey("GoalPosition", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey ShootTargetPosition = new AIMemoryKey("ShootTargetPosition");
+    public static AIMemoryKey ShotStrength = new AIMemoryKey("ShotStrength");
 
     // Ball Pass
     public static AIMemoryKey BallPasserUnit = new AIMemoryKey("BallPasserUnit", AIMemoryKey.ContextType.Squad);

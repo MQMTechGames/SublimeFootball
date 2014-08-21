@@ -346,6 +346,18 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryMovingWithBallToAForwardPosition.AddChild(moveForwardWithBall);
         #endregion MoveWithBall
 
+        #region Shoot
+        Sequence shoot = new Sequence();
+            shoot.AddChild(new FindGoal(UnitAIMemory.Unit, UnitAIMemory.Goal));
+            shoot.AddChild(new SelectGoalShootPosition(UnitAIMemory.Unit, UnitAIMemory.Goal, UnitAIMemory.ShootTargetPosition));
+            shoot.AddChild(new SetMemoryVar<float>(UnitAIMemory.ShotStrength, 60f));
+            shoot.AddChild(new ShootToPosition(UnitAIMemory.Unit, UnitAIMemory.Ball, UnitAIMemory.ShootTargetPosition, UnitAIMemory.ShotStrength));
+
+        Sequence tryToShoot = new Sequence();
+            tryToShoot.AddChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar));
+            tryToShoot.AddChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar));
+        #endregion Shoot
+
         RandomSelector attackWithBall = new RandomSelector();
             attackWithBall.AddChild(tryToPassTheBall);
             attackWithBall.AddChild(tryMovingWithBallToAForwardPosition);

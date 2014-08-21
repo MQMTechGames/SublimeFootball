@@ -15,15 +15,15 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Unit)
         {
-            return UnitMemory.GetMemoryObject<T>(key.Name, out oVar);
+            return UnitMemory.GetMemoryObject<T>(key.HashCode, out oVar);
         }
         else if(key.Context == AIMemoryKey.ContextType.Squad)
         {
-            return SquadMemory.GetMemoryObject<T>(key.Name, out oVar);
+            return SquadMemory.GetMemoryObject<T>(key.HashCode, out oVar);
         }
         else
         {
-            return GlobalMemory.GetMemoryObject<T>(key.Name, out oVar);
+            return GlobalMemory.GetMemoryObject<T>(key.HashCode, out oVar);
         }
     }
     
@@ -31,15 +31,15 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Unit)
         {
-            UnitMemory.SetMemoryObject<T>(key.Name, iVar);
+            UnitMemory.SetMemoryObject<T>(key.HashCode, iVar);
         }
         else if(key.Context == AIMemoryKey.ContextType.Squad)
         {
-            SquadMemory.SetMemoryObject<T>(key.Name, iVar);
+            SquadMemory.SetMemoryObject<T>(key.HashCode, iVar);
         }
         else
         {
-            GlobalMemory.SetMemoryObject<T>(key.Name, iVar);
+            GlobalMemory.SetMemoryObject<T>(key.HashCode, iVar);
         }
     }
     
@@ -47,15 +47,15 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Unit)
         {
-            return UnitMemory.RemoveMemoryObject(key.Name);
+            return UnitMemory.RemoveMemoryObject(key.HashCode);
         }
         else if(key.Context == AIMemoryKey.ContextType.Squad)
         {
-            return SquadMemory.RemoveMemoryObject(key.Name);
+            return SquadMemory.RemoveMemoryObject(key.HashCode);
         }
         else
         {
-            return GlobalMemory.RemoveMemoryObject(key.Name);
+            return GlobalMemory.RemoveMemoryObject(key.HashCode);
         }
     }
     
@@ -63,15 +63,15 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Unit)
         {
-            return UnitMemory.ContainsMemoryObject(key.Name);
+            return UnitMemory.ContainsMemoryObject(key.HashCode);
         }
         else if(key.Context == AIMemoryKey.ContextType.Squad)
         {
-            return SquadMemory.ContainsMemoryObject(key.Name);
+            return SquadMemory.ContainsMemoryObject(key.HashCode);
         }
         else
         {
-            return GlobalMemory.ContainsMemoryObject(key.Name);
+            return GlobalMemory.ContainsMemoryObject(key.HashCode);
         }
     }
 }

@@ -53,11 +53,14 @@
      <Compile Include="Assets\BT\Memory.cs" />
      <Compile Include="Assets\BT\MemoryManager.cs" />
      <Compile Include="Assets\Ball.cs" />
+     <Compile Include="Assets\Bound.cs" />
      <Compile Include="Assets\CameraController.cs" />
      <Compile Include="Assets\CommandTester.cs" />
      <Compile Include="Assets\DebugGUI.cs" />
      <Compile Include="Assets\FIFO\SimpleList.cs" />
      <Compile Include="Assets\Goal\Goal.cs" />
+     <Compile Include="Assets\GoalTrigger.cs" />
+     <Compile Include="Assets\Hash\MemoryKeysHashCodeManager.cs" />
      <Compile Include="Assets\Knowledge\BaseKnowledge.cs" />
      <Compile Include="Assets\Knowledge\KnowledgeActions.cs" />
      <Compile Include="Assets\Knowledge\Message\AIMessage.cs" />

@@ -605,6 +605,67 @@ namespace MQMTech.AI.Mover.Action
     }
 
     [System.Serializable]
+    public class SelectGoalShootPosition : BaseUnitAction
+    {
+        AIMemoryKey _goalKey;
+        AIMemoryKey _positionKey;
+        
+        public SelectGoalShootPosition(AIMemoryKey unitKey, AIMemoryKey goalKey, AIMemoryKey positionKey)
+            :base(unitKey)
+        {
+            _goalKey = goalKey;
+            _positionKey = positionKey;
+        }
+        
+        public override Status Update()
+        {
+            Goal goal;
+            bool isOk = _bt.GetMemoryObject(_goalKey, out goal);
+            DebugUtils.Assert(isOk, "goal not found");
+
+            Vector3 position = Unit.SelectGoalShootPosition(goal);
+            _bt.SetMemoryObject(_positionKey, position);
+            
+            return Status.SUCCESS;
+        }
+    }
+
+    [System.Serializable]
+    public class ShootToPosition : BaseUnitAction
+    {
+        AIMemoryKey _positionKey;
+        AIMemoryKey _ballKey;
+        AIMemoryKey _shotStrength;
+        
+        public ShootToPosition(AIMemoryKey unitKey, AIMemoryKey ballKey, AIMemoryKey positionKey, AIMemoryKey shotStrength)
+            :base(unitKey)
+        {
+            _positionKey = positionKey;
+            _ballKey = ballKey;
+            _shotStrength = shotStrength;
+        }
+        
+        public override Status Update()
+        {
+            Vector3 position;
+            bool isOk = _bt.GetMemoryObject(_positionKey, out position);
+            DebugUtils.Assert(isOk, "position not found");
+
+            Ball ball;
+            isOk = _bt.GetMemoryObject(_ballKey, out ball);
+            DebugUtils.Assert(isOk, "ball not found");
+
+            float shotStrength;
+            isOk = _bt.GetMemoryObject(_shotStrength, out shotStrength);
+            DebugUtils.Assert(isOk, "shotStrength not found");
+            
+            Unit.ShootToPosition(position, shotStrength, ball);
+            
+            return Status.SUCCESS;
+        }
+    }
+
+    [System.Serializable]
     public class SaveOnBallPassedProperties : Behavior
     {
         AIMemoryKey _positionKey;
