@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using MQMTech.AI.BT;
 using MQMTech.AI.Knowledge;
 
@@ -8,10 +8,12 @@ namespace MQMTech.AI.Mover.Action
     public class CheckAIMessageIsValidOrRemove : Behavior
     {
         AIMemoryKey _messageKey;
+        float _maxElapsedTime;
 
-        public CheckAIMessageIsValidOrRemove(AIMemoryKey messageKey)
+        public CheckAIMessageIsValidOrRemove(AIMemoryKey messageKey, float maxElapsedTime)
         {
             _messageKey = messageKey;
+            _maxElapsedTime = maxElapsedTime;
         }
 
         public override Status Update()
@@ -24,7 +26,7 @@ namespace MQMTech.AI.Mover.Action
                 return Status.FAILURE;
             }
 
-            return message.IsValid() ? Status.SUCCESS : Status.FAILURE;
+            return message.CheckValidElapsedTime(_maxElapsedTime) ? Status.SUCCESS : Status.FAILURE;
         }
     }
 

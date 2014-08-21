@@ -1,15 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Hash\MemoryKeysHashCodeManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Unit\DemoUnitBTBuilder.cs">
     <Files>
-      <File FileName="Assets\GoalTrigger.cs" Line="30" Column="6" />
-      <File FileName="Assets\Goal\Goal.cs" Line="1" Column="1" />
-      <File FileName="Assets\Unit\DemoUnitBTBuilder.cs" Line="1" Column="1" />
+      <File FileName="Assets\Unit\DemoUnitBTBuilder.cs" Line="373" Column="184" />
       <File FileName="Assets\Unit\BaseUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\Unit\Mover\UnitBTActions.cs" Line="1" Column="1" />
-      <File FileName="Assets\Unit\UnitAIMemory.cs" Line="1" Column="1" />
-      <File FileName="Assets\BT\AIMemoryKey.cs" Line="27" Column="17" />
-      <File FileName="Assets\Hash\MemoryKeysHashCodeManager.cs" Line="32" Column="17" />
+      <File FileName="Assets\Unit\Mover\CreateBallPassedMessage.cs" Line="1" Column="1" />
+      <File FileName="Assets\BT\MemoryManager.cs" Line="74" Column="66" />
+      <File FileName="Assets\BT\BehaviorTreeViewer.cs" Line="158" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

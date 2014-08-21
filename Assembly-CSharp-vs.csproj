@@ -64,7 +64,8 @@
      <Compile Include="Assets\Knowledge\BaseKnowledge.cs" />
      <Compile Include="Assets\Knowledge\KnowledgeActions.cs" />
      <Compile Include="Assets\Knowledge\Message\AIMessage.cs" />
-     <Compile Include="Assets\Knowledge\Message\OnWillPassTheBall.cs" />
+     <Compile Include="Assets\Knowledge\Message\BallPassedMessage.cs" />
+     <Compile Include="Assets\Knowledge\Message\BallShotMessage.cs" />
      <Compile Include="Assets\Match.cs" />
      <Compile Include="Assets\RandomMovement.cs" />
      <Compile Include="Assets\SharedMemory.cs" />
@@ -82,11 +83,11 @@
      <Compile Include="Assets\Unit\Knowledge\MoveToCommand.cs" />
      <Compile Include="Assets\Unit\Mover\AIMeesageActions.cs" />
      <Compile Include="Assets\Unit\Mover\BaseMover.cs" />
+     <Compile Include="Assets\Unit\Mover\CreateBallPassedMessage.cs" />
      <Compile Include="Assets\Unit\Mover\ListActions.cs" />
      <Compile Include="Assets\Unit\Mover\MathActions.cs" />
      <Compile Include="Assets\Unit\Mover\MoverBTActions.cs" />
      <Compile Include="Assets\Unit\Mover\SimpleUnitMoverBuilder.cs" />
-     <Compile Include="Assets\Unit\Mover\UnitBTActions.cs" />
      <Compile Include="Assets\Unit\UnitAIConstants.cs" />
      <Compile Include="Assets\Unit\UnitAIMemory.cs" />
      <Compile Include="Assets\Utils\DebugUtils.cs" />

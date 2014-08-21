@@ -48,6 +48,7 @@ public static class UnitAIMemory
     public static AIMemoryKey MessageValidDuration = new AIMemoryKey("MessageValidDuration");
     public static AIMemoryKey MessageList = new AIMemoryKey("MessageList");
     public static AIMemoryKey OnBallPassed = new AIMemoryKey("OnWillPassTheBall", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey OnBallShot = new AIMemoryKey("OnBallShot", AIMemoryKey.ContextType.Squad);
     public static AIMemoryKey PossessionMateUnit = new AIMemoryKey("PossessionMateUnit");
     public static AIMemoryKey BallTargetMateUnit = new AIMemoryKey("BallTargetMateUnit");
     

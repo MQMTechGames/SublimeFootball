@@ -352,6 +352,96 @@ namespace MQMTech.AI.BT
         }
     }
 
+    public class ProbabilitySelector : Composite
+    {
+        public struct ProbabilityData
+        {
+            public float Probability;
+
+            public float ProbabilityNormalizedStart;
+            public float ProbabilityNormalizedEnd;
+
+            public ProbabilityData(float probability)
+            {
+                Probability = probability;
+                ProbabilityNormalizedStart = 0f;
+                ProbabilityNormalizedEnd = 0f;
+            }
+
+            public void SetNormalizedProbabilities(float probabilityStart, float probabilityEnd)
+            {
+                ProbabilityNormalizedStart = probabilityStart;
+                ProbabilityNormalizedEnd = probabilityEnd;
+            }
+
+            public bool IsValid(float value)
+            {
+                return value >= ProbabilityNormalizedStart && value <= ProbabilityNormalizedEnd;
+            }
+        }
+
+        List<ProbabilityData> _probabilities = new List<ProbabilityData>();
+
+        public override void OnInit(BehaviorTree bt)
+        {
+            base.OnInit(bt);
+
+            CalculateNormalizedProbabilities();
+        }
+
+        void CalculateNormalizedProbabilities()
+        {
+            float totalProbability = 0f;
+            
+            foreach (ProbabilityData probabilityData in _probabilities)
+            {
+                totalProbability += probabilityData.Probability;
+            }
+            
+            float currentProbability = 0f;
+            for (int i = 0; i < _probabilities.Count; ++i)
+            {
+                ProbabilityData currentProbabilityData = _probabilities[i];
+                ProbabilityData newProbabilityData = new ProbabilityData(currentProbabilityData.Probability);
+                
+                newProbabilityData.ProbabilityNormalizedStart = currentProbability;
+                newProbabilityData.ProbabilityNormalizedEnd = currentProbability + newProbabilityData.Probability / totalProbability;
+                
+                currentProbability = newProbabilityData.ProbabilityNormalizedEnd;
+                
+                _probabilities[i] = newProbabilityData;
+            }
+        }
+        
+        public void AddChild(Behavior child, float probability)
+        {
+            base.AddChild(child);
+            _probabilities.Add(new ProbabilityData(probability));
+        }
+
+        public override void OnInitialize()
+        {
+            base.OnInitialize();
+            
+            float probabilityNorm = UnityEngine.Random.Range(0f, 1f);
+            for (int i = 0; i < _probabilities.Count; ++i)
+            {
+                ProbabilityData probabilityData = _probabilities[i];
+
+                if(probabilityData.IsValid(probabilityNorm))
+                {
+                    _childrenIdx = i;
+                    break;
+                }
+            }
+        }
+        
+        public override Status Update()
+        {
+            return _children[_childrenIdx].Tick();
+        }
+    }
+
     public abstract class Decorator : Behavior
     {
     	protected Behavior _child;

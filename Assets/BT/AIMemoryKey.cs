@@ -23,7 +23,6 @@ public struct AIMemoryKey
     {
         Name = name;
         Context = context;
-
         HashCode = MemoryKeysHashCodeManager.RegisterMemoryKey(this);
     }
 }

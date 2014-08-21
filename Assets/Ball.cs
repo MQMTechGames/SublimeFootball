@@ -4,9 +4,13 @@ public class Ball : MonoBehaviour
 {
     [SerializeField]
     LayerMask _terrainLayer;
-
     [SerializeField]
     float _frictionStrength;
+
+    [SerializeField]
+    LayerMask _bounceLayer;
+    [SerializeField]
+    float _bounceStrength;
 
     bool _inTerrain = false;
 
@@ -70,6 +74,11 @@ public class Ball : MonoBehaviour
         {
             _inTerrain = true;
         }
+        else if(CheckIsBounceSurface(other.gameObject))
+        {
+            Debug.Log("Is Bounce");
+            Bounce(other.contacts[0].normal);
+        }
     }
 
     void OnCollisionExit(Collision other)
@@ -88,8 +97,25 @@ public class Ball : MonoBehaviour
         return isTerrain > 0;
     }
 
+    bool CheckIsBounceSurface(GameObject go)
+    {
+        int layer = 1 << go.layer;
+        int isBounce = (layer & _bounceLayer.value);
+        
+        return isBounce > 0;
+    }
+
     void ReduceVelocity()
     {
         _rigidbody.velocity *= (1.0f - _frictionStrength * Time.deltaTime);
+    }
+
+    void Bounce(Vector3 normal)
+    {
+        normal.Normalize();
+        Vector3 currentVel = _rigidbody.velocity;
+        Vector3 refl = currentVel + 2f * Vector3.Dot(-currentVel, normal) * normal;
+
+        _rigidbody.velocity = refl.normalized * (currentVel.magnitude * _bounceStrength);
     }
 }

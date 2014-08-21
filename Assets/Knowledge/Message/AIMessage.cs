@@ -1,22 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace MQMTech.AI.Knowledge
 {
     public class AIMessage : BaseKnowledge
     {
-        // When the message will stop being valid
-        public float endValidTime { get; set; }
+        public float Timestap { get; private set; }
 
-        public AIMessage(float validDuration)
+        public AIMessage()
             :base()
         {
-            endValidTime = Time.timeSinceLevelLoad + validDuration;
+            Timestap = Time.timeSinceLevelLoad;
         }
 
-        public bool IsValid()
+        public bool CheckValidElapsedTime(float elapsedTime)
         {
-            return Time.timeSinceLevelLoad < endValidTime;
+            return Time.timeSinceLevelLoad < (Timestap + elapsedTime);
         }
     }
 }
