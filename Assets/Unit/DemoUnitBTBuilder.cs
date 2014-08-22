@@ -18,18 +18,12 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
     [SerializeField]
     SharedMemory _matchMemory;
 
-    [SerializeField]
-    IProbabilityBehaviorAgent _probabilitySelectorAgent;
-    
     void Awake()
     {
         _unit = GameObjectUtils.GetInterfaceObject<BaseUnit>(gameObject);
 
         _match = FindObjectOfType<Match>();
         DebugUtils.Assert(_match!=null, "_match!=null");
-
-        _probabilitySelectorAgent = GameObjectUtils.GetInterfaceObject<IProbabilityBehaviorAgent>(gameObject);
-        DebugUtils.Assert(_probabilitySelectorAgent!=null, "_probabilitySelectorAgent!=null");
     }
     
     public BehaviorTree GetBehaviorTree()
@@ -227,7 +221,8 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
         Sequence forwardPass = new Sequence();
             forwardPass.AddChild(findTargetDirection);
-            forwardPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.TargetDirection, UnitAIMemory.SelectedMateUnit));
+            forwardPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.TargetDirection, UnitAIMemory.SelectedMateUnit, false));
+            forwardPass.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.SelectedMateUnit)));
             forwardPass.AddChild(passBallToSelectedMateUnit);
 
         Sequence calculateLeftDirection = new Sequence();
@@ -238,13 +233,13 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
         Sequence leftPass = new Sequence();
             leftPass.AddChild(calculateLeftDirection);
-            leftPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.LeftDirection, UnitAIMemory.SelectedMateUnit));
+            leftPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.LeftDirection, UnitAIMemory.SelectedMateUnit, false));
             leftPass.AddChild(passBallToSelectedMateUnit);
 
         Sequence rightPass = new Sequence();
             rightPass.AddChild(calculateLeftDirection);
             rightPass.AddChild(new Vector3Invert(UnitAIMemory.LeftDirection, UnitAIMemory.RightDirection));
-            rightPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.RightDirection, UnitAIMemory.SelectedMateUnit));
+            rightPass.AddChild(new SelectForwardUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.RightDirection, UnitAIMemory.SelectedMateUnit, false));
             rightPass.AddChild(passBallToSelectedMateUnit);
 
         RandomSelector sidePass = new RandomSelector();
@@ -254,14 +249,14 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         Sequence randomBallPass = new Sequence();
             randomBallPass.AddChild(new SelectRandomUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.SelectedMateUnit));
             randomBallPass.AddChild(passBallToSelectedMateUnit);
-        
+
         // Try to pass the ball
         Sequence tryToPassTheBall = new Sequence();
             tryToPassTheBall.AddChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar));
-            //tryToPassTheBall.AddChild(new Succeder().SetChild(easyBallPass));
-            //tryToPassTheBall.AddChild(new Succeder().SetChild(forwardPass));
-            //tryToPassTheBall.AddChild(new Succeder().SetChild(rightPass));
-            tryToPassTheBall.AddChild(new Succeder().SetChild(randomBallPass));
+            //tryToPassTheBall.AddChild(easyBallPass);
+            tryToPassTheBall.AddChild(forwardPass);
+            //tryToPassTheBall.AddChild(rightPass);
+            //tryToPassTheBall.AddChild(randomBallPass);
             tryToPassTheBall.AddChild(unsetBallControlled);
 
         //-- Prepare to Receive the ball to point
@@ -281,27 +276,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToReactToBallPassMessage.AddChild(moveToTargetPosition);
             tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(waitWhileBallIsComingTillIsClose));
             tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(new RemoveKnowledgeIfNotNew(UnitAIMemory.OnBallPassed)));
-
-        //* What to do when team have ball posession
-            // Do something if I have not the ball controlled
-                // Choose between
-                    // try to recover the ball if noone has it controlled
-                    // try to react to Ball Pass Message (Active Selector ?)
-                    // Try to Move to a valid position where the ball controller can pass me the ball
-                        // Try to go up to the target goal
-                        // Try to go down to move the ball
-                    // Go to defensive position (to cover counter attack)
-            // Do something if I have the ball controlled
-                // Choose between
-                    // try to move forward
-                    // try to pass the ball
-                        // easy pass
-                        // forward pass
-                    // try to shoot to the goal
-
-        //* what to do when noone have ball posession
-            // Try to recover posession
-                // Try to chase the ball
 
         // Try to Move To A Passing Position
         Sequence tryMovingToAPassingPosition = new Sequence();
@@ -394,13 +368,12 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             catchAndControllOrPushTheBall.AddChild(checkUnitBallDistance);
             catchAndControllOrPushTheBall.AddChild(controllOrPushTheBallIfHasEnemyOwner);
 
-        ActiveSequence chatchAncControllOrPushTheBallIfClose = new ActiveSequence();
-            chatchAncControllOrPushTheBallIfClose.AddChild(new CheckUnitDistanceBetweenComponents(UnitAIMemory.Unit, UnitAIMemory.Ball, 100f));
-            chatchAncControllOrPushTheBallIfClose.AddChild(catchAndControllOrPushTheBall);
+        ActiveSequence chaseControlOrPushBallIfClose = new ActiveSequence();
+            chaseControlOrPushBallIfClose.AddChild(new CheckUnitDistanceBetweenComponents(UnitAIMemory.Unit, UnitAIMemory.Ball, 100f));
+            chaseControlOrPushBallIfClose.AddChild(catchAndControllOrPushTheBall);
             
         Sequence tryToRecoverTheBallWhenDefensing = new Sequence();
-            tryToRecoverTheBallWhenDefensing.AddChild(chatchAncControllOrPushTheBallIfClose);
-            //tryToRecoverTheBallWhenDefensing.AddChild(catchAndControllOrPushTheBall);
+            tryToRecoverTheBallWhenDefensing.AddChild(chaseControlOrPushBallIfClose);
 
         Sequence tryToDefend = new Sequence();
             tryToDefend.AddChild(new CheckNotNullMemoryVar(UnitAIMemory.g_PossessionSquad));
@@ -409,10 +382,101 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToDefend.AddChild(tryToRecoverTheBallWhenDefensing);
         #endregion defensive
 
-        ProbabilitySelector attackWithBall = new ProbabilitySelector(AttacKWithBallSelectorKey.SelectorKey.Id, UnitAIMemory.ProbabilityAgent);
-            attackWithBall.AddChild(tryToPassTheBall, AttacKWithBallSelectorKey.TryToPassTheBall.Id);
-            attackWithBall.AddChild(tryMovingWithBallToAForwardPosition, AttacKWithBallSelectorKey.TryMovingWithBallToAForwardPosition.Id);
-            attackWithBall.AddChild(tryToShoot, AttacKWithBallSelectorKey.TryMovingWithBallToAForwardPosition.Id);
+        #region setupBallProbabilities
+        Sequence AttackingBigAreaOdds = new Sequence();
+            AttackingBigAreaOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.AttackingBigArea));
+            AttackingBigAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 1f));
+            AttackingBigAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 2f));
+            AttackingBigAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 7f));
+
+        Sequence AttackingLeftLateralOdds = new Sequence();
+            AttackingLeftLateralOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.AttackingLeftLateral));
+            AttackingLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 7f));
+            AttackingLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 2f));
+            AttackingLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 1f));
+
+        Sequence AttackingLittleAreaOdds = new Sequence();
+            AttackingLittleAreaOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.AttackingLittleArea));
+            AttackingLittleAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 0.2f));
+            AttackingLittleAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 0.2f));
+            AttackingLittleAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 9.6f));
+
+        Sequence AttackingRightLateralOdds = new Sequence();
+            AttackingRightLateralOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.AttackingRightLateral));
+            AttackingRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 7f));
+            AttackingRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 2f));
+            AttackingRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 1f));
+
+        Sequence DefensiveAreaOdds = new Sequence();
+            DefensiveAreaOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.DefensiveArea));
+            DefensiveAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 9f));
+            DefensiveAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 0.5f));
+            DefensiveAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 0.5f));
+
+        Sequence MiddleAttackingAreaOdds = new Sequence();
+            MiddleAttackingAreaOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.MiddleAttackingArea));
+            MiddleAttackingAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 4f));
+            MiddleAttackingAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 5f));
+            MiddleAttackingAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 1f));
+
+        Sequence MiddleDefensiveAreaOdds = new Sequence();
+            MiddleDefensiveAreaOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.MiddleDefensiveArea));
+            MiddleDefensiveAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 8f));
+            MiddleDefensiveAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 1.8f));
+            MiddleDefensiveAreaOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 0.2f));
+
+        Sequence MiddleLeftLateralOdds = new Sequence();
+            MiddleLeftLateralOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.MiddleLeftLateral));
+            MiddleLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 0.5f));
+            MiddleLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 10f));
+            MiddleLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 0.01f));
+
+        Sequence MiddleRightLateralOdds = new Sequence();
+            MiddleRightLateralOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.MiddleRightLateral));
+            MiddleRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 0.5f));
+            MiddleRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 10f));
+            MiddleRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 0.01f));
+
+        Sequence TopAttackingLeftLateralOdds = new Sequence();
+            TopAttackingLeftLateralOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.TopAttackingLeftLateral));
+            TopAttackingLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 10f));
+            TopAttackingLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 0f));
+            TopAttackingLeftLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 0f));
+
+        Sequence TopAttackingRightLateralOdds = new Sequence();
+            TopAttackingRightLateralOdds.AddChild(new CheckAreEqualMemoryVarWithValue<GameZoneType>(UnitAIMemory.ZoneType, GameZoneType.TopAttackingRightLateral));
+            TopAttackingRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToPassTheBallOdds, 10f));
+            TopAttackingRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryMovingWithBallToAForwardOdds, 0f));
+            TopAttackingRightLateralOdds.AddChild(new SetMemoryVar<float>(UnitAIMemory.TryToShootForwardOdds, 0f));
+        #endregion setupBallProbabilities
+
+        Selector setAttackProbabilities = new Selector();
+            setAttackProbabilities.AddChild(AttackingBigAreaOdds);
+            setAttackProbabilities.AddChild(AttackingLeftLateralOdds);
+            setAttackProbabilities.AddChild(AttackingLittleAreaOdds);
+            setAttackProbabilities.AddChild(AttackingRightLateralOdds);
+            setAttackProbabilities.AddChild(DefensiveAreaOdds);
+            setAttackProbabilities.AddChild(MiddleAttackingAreaOdds);
+            setAttackProbabilities.AddChild(MiddleDefensiveAreaOdds);
+            setAttackProbabilities.AddChild(MiddleLeftLateralOdds);
+            setAttackProbabilities.AddChild(MiddleRightLateralOdds);
+            setAttackProbabilities.AddChild(TopAttackingLeftLateralOdds);
+            setAttackProbabilities.AddChild(TopAttackingRightLateralOdds);
+            setAttackProbabilities.AddChild(new LogAction("Warning!: Not Probability has been selected"));
+
+        Selector tryToPassTheBallOrMoveForward = new Selector();
+            tryToPassTheBallOrMoveForward.AddChild(tryToPassTheBall);
+            tryToPassTheBallOrMoveForward.AddChild(tryMovingWithBallToAForwardPosition);
+
+        ProbabilitySelector attackWithBallSelection = new ProbabilitySelector();
+            attackWithBallSelection.AddChild(tryToPassTheBallOrMoveForward, UnitAIMemory.TryToPassTheBallOdds);
+            attackWithBallSelection.AddChild(tryMovingWithBallToAForwardPosition, UnitAIMemory.TryMovingWithBallToAForwardOdds);
+            attackWithBallSelection.AddChild(tryToShoot, UnitAIMemory.TryToShootForwardOdds);
+
+        Sequence attackWithBall = new Sequence();
+            attackWithBall.AddChild(new GetZoneType(UnitAIMemory.Unit, UnitAIMemory.ZoneType));
+            attackWithBall.AddChild(setAttackProbabilities);
+            attackWithBall.AddChild(attackWithBallSelection);
 
         // Attack with ball controlled
         Sequence tryToAttackWithBall = new Sequence();
@@ -464,7 +528,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         // Init variables
         _bt.SetMemoryObject(UnitAIMemory.Unit, _unit);
         _bt.SetMemoryObject(UnitAIMemory.Squad, _unit.Squad);
-        _bt.SetMemoryObject(UnitAIMemory.ProbabilityAgent, _probabilitySelectorAgent);
         _bt.SetMemoryObject(UnitAIMemory.TrueVar, true);
         _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
         _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);

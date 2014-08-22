@@ -389,12 +389,14 @@ namespace MQMTech.AI.Mover.Action
     {
         AIMemoryKey _resultUnitKey;
         AIMemoryKey _forwardDirectionKey;
+        bool _discartItself;
         
-        public SelectForwardUnitToPassTheBall(AIMemoryKey unitKey, AIMemoryKey forwardDirectionKey, AIMemoryKey resultUnitKey)
+        public SelectForwardUnitToPassTheBall(AIMemoryKey unitKey, AIMemoryKey forwardDirectionKey, AIMemoryKey resultUnitKey, bool distartItself)
             :base(unitKey)
         {
             _resultUnitKey = resultUnitKey;
             _forwardDirectionKey = forwardDirectionKey;
+            _discartItself = distartItself;
         }
         
         public override Status Update()
@@ -403,7 +405,7 @@ namespace MQMTech.AI.Mover.Action
             bool isOk = _bt.GetMemoryObject(_forwardDirectionKey, out direction);
             DebugUtils.Assert(isOk, "forwardDirection Not found");
 
-            BaseUnit easiestUnit = Unit.SelectForwardUnitToPassTheBall(direction);
+            BaseUnit easiestUnit = Unit.SelectForwardUnitToPassTheBall(direction, _discartItself);
             _bt.SetMemoryObject(_resultUnitKey, easiestUnit);
             
             return Status.SUCCESS;
@@ -1331,6 +1333,26 @@ namespace MQMTech.AI.Mover.Action
             DebugUtils.Assert(isOk, "smashMsg is null");
             
             Unit.ProcessBeingSmashed(smashMsg.Smasher, smashMsg.SmashForce);
+            
+            return Status.SUCCESS;
+        }
+    }
+
+    [System.Serializable]
+    public class GetZoneType : BaseUnitAction
+    {
+        AIMemoryKey _resultKey;
+        
+        public GetZoneType(AIMemoryKey unitKey, AIMemoryKey resultKey)
+            : base(unitKey)
+        {
+            _resultKey = resultKey;
+        }
+        
+        public override Status Update()
+        {
+            GameZone gameZone = Unit.GetGameZone();
+            _bt.SetMemoryObject(_resultKey, gameZone.ZoneType);
             
             return Status.SUCCESS;
         }

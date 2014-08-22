@@ -94,5 +94,10 @@ public static class UnitAIMemory
     public static AIMemoryKey SmashedMessage = new AIMemoryKey("SmashedMessage");
 
     // Probability Selector
-    public static AIMemoryKey ProbabilityAgent = new AIMemoryKey("ProbabilityAgent");
+    public static AIMemoryKey TryToPassTheBallOdds = new AIMemoryKey("TryToPassTheBallOdds");
+    public static AIMemoryKey TryMovingWithBallToAForwardOdds = new AIMemoryKey("TryMovingWithBallToAForwardOdds");
+    public static AIMemoryKey TryToShootForwardOdds = new AIMemoryKey("TryToShootForwardOdds");
+
+    // Zones
+    public static AIMemoryKey ZoneType = new AIMemoryKey("ZoneType");
 }

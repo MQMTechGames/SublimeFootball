@@ -9,6 +9,10 @@ public class BaseSquad : MonoBehaviour
     [SerializeField]
     Goal _goal;
 
+    [SerializeField]
+    FieldSide _fieldSide;
+    public FieldSide Side { get { return _fieldSide; } }
+
     Match _match;
 
     void Awake()
@@ -72,7 +76,7 @@ public class BaseSquad : MonoBehaviour
         return closestUnit;
     }
 
-    public BaseUnit SelectForwardUnitToPassTheBall(BaseUnit passerUnit, Vector3 forwardDirection)
+    public BaseUnit SelectForwardUnitToPassTheBall(BaseUnit passerUnit, Vector3 forwardDirection, bool discartItself)
     {
         DebugUtils.Assert(_units.Length > 1);
         
@@ -83,7 +87,7 @@ public class BaseSquad : MonoBehaviour
         
         foreach (BaseUnit unit in _units)
         {
-            if(unit == passerUnit)
+            if(unit == passerUnit && discartItself)
             {
                 continue;
             }

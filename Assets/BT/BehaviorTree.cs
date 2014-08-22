@@ -359,69 +359,72 @@ namespace MQMTech.AI.BT
 
     public class ProbabilitySelector : Composite
     {
-        AIMemoryKey _agentKey;
-        IProbabilityBehaviorAgent _agent;
+        List<AIMemoryKey> _probabilityKeys = new List<AIMemoryKey>();
+        float[]_probabilities;
+        float[] _probabilitiesStart;
+        float[] _probabilitiesEnd;
 
-        int _selectorId;
-        List<int> _nodeIds = new List<int>();
-        List<float> _probabilities = new List<float>();
-        List<float> _probabilitiesStart = new List<float>();
-        List<float> _probabilitiesEnd = new List<float>();
-
-        public ProbabilitySelector(int selectorId, AIMemoryKey agentKey)
-        {
-            _selectorId = selectorId;
-            _agentKey = agentKey;
-        }
-
-        public void AddChild(Behavior child, int nodeId)
+        public void AddChild(Behavior child, AIMemoryKey probabilityKey)
         {
             base.AddChild(child);
-            _nodeIds.Add(nodeId);
+            _probabilityKeys.Add(probabilityKey);
+        }
+
+        public override void OnInit(BehaviorTree bt)
+        {
+            base.OnInit(bt);
+
+            _probabilitiesStart = new float[_probabilityKeys.Count];
+            _probabilitiesEnd = new float[_probabilityKeys.Count];
+            _probabilities = new float[_probabilityKeys.Count];
         }
 
         public override void OnInitialize()
         {
             base.OnInitialize();
 
-            GetAgent();
             CalculateNormalizedProbabilities();
             SelectRandomChild();
         }
 
-        void GetAgent()
-        {
-            _bt.GetMemoryObject(_agentKey, out _agent);
-            DebugUtils.Assert(_agent != null, "_agent != null");
-        }
-
         void CalculateNormalizedProbabilities()
         {
-            _agent.FillProbabilities(_selectorId, _nodeIds, _probabilities);
-            
             float totalProbability = 0f;
             
-            foreach (float probability in _probabilities)
+            for (int i = 0; i < _probabilityKeys.Count; ++i)
             {
-                totalProbability += probability;
+                _probabilities[i] = GetProbabilityFromMemory(_probabilityKeys[i]);
+                totalProbability += _probabilities[i];
+                //Debug.Log(_probabilityKeys[i].Name + ": " + probability);
             }
             
             float currentProbability = 0f;
-            for (int i = 0; i < _probabilities.Count; ++i)
+            for (int i = 0; i < _probabilities.Length; ++i)
             {
                 float probability = _probabilities[i];
                 
                 _probabilitiesStart[i] = currentProbability;
-                _probabilitiesEnd[i] = currentProbability + probability / totalProbability;
+                _probabilitiesEnd[i] = currentProbability + (probability / totalProbability);
                 
                 currentProbability = _probabilitiesEnd[i];
             }
         }
 
+        float GetProbabilityFromMemory(AIMemoryKey key)
+        {
+            float probability = 1f;
+            bool isOk = _bt.GetMemoryObject(key, out probability);
+            DebugUtils.Assert(isOk, "probability is not found");
+            
+            return probability;
+        }
+
         void SelectRandomChild()
         {
-            float probabilityNorm = UnityEngine.Random.Range(0f, 1f);
-            for (int i = 0; i < _probabilities.Count; ++i)
+            UnityEngine.Random.seed = (int) Time.timeSinceLevelLoad;
+
+            float probabilityNorm = UnityEngine.Random.Range(0f, 10000f) * 0.0001f;
+            for (int i = 0; i < _probabilities.Length; ++i)
             {
                 bool isValid = probabilityNorm >= _probabilitiesStart[i] && probabilityNorm <= _probabilitiesEnd[i];
                 if(isValid)
@@ -786,6 +789,31 @@ namespace MQMTech.AI.BT
         public CheckAreEqualMemoryVars(AIMemoryKey varNameA, AIMemoryKey varNameB)
             :base(varNameA, varNameB)
         {
+        }
+    }
+
+    public class CheckAreEqualMemoryVarWithValue<T> : Behavior
+    {
+        AIMemoryKey _varNameA;
+        T _value;
+        
+        public CheckAreEqualMemoryVarWithValue(AIMemoryKey varNameA, T value)
+        {
+            _varNameA = varNameA;
+            _value = value;
+        }
+        
+        public override Status Update()
+        {
+            T objA = default(T);
+            bool isOk = _bt.GetMemoryObject<T>(_varNameA, out objA);
+            
+            if(objA == null || _value == null)
+            {
+                return Status.FAILURE;
+            }
+            
+            return objA.Equals(_value) ? Status.SUCCESS : Status.FAILURE;
         }
     }
 

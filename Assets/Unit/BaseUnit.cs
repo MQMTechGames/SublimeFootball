@@ -4,7 +4,7 @@ using MQMTech.AI;
 using MQMTech.AI.Knowledge;
 
 [RequireComponent(typeof(BaseMover), typeof(BaseUnitAI))]
-public class BaseUnit : MonoBehaviour, IProbabilityBehaviorAgent
+public class BaseUnit : MonoBehaviour
 {
     [SerializeField]
     float _smashStrength = 68f;
@@ -17,13 +17,18 @@ public class BaseUnit : MonoBehaviour, IProbabilityBehaviorAgent
     Match _match;
 
     Ball _controlledBall;
+    GameZonesManager _gameZoneManager;
 
     void Awake()
     {
-        _unitAI = GameObjectUtils.GetInterfaceObject<BaseUnitAI>(gameObject);
         _mover = GameObjectUtils.GetInterfaceObject<BaseMover>(gameObject);
+        _unitAI = GameObjectUtils.GetInterfaceObject<BaseUnitAI>(gameObject);
 
         _match = FindObjectOfType<Match>();
+        DebugUtils.Assert(_match!=null, "_match!=null");
+
+        _gameZoneManager = FindObjectOfType<GameZonesManager>();
+        DebugUtils.Assert(_gameZoneManager!=null, "_gameZoneManager!=null");
     }
 
     public virtual void Init(BaseSquad squad)
@@ -61,9 +66,9 @@ public class BaseUnit : MonoBehaviour, IProbabilityBehaviorAgent
         return _squad.SelectRandomUnitToPassTheBall(this);
     }
 
-    public BaseUnit SelectForwardUnitToPassTheBall(Vector3 forwardDirectoin)
+    public BaseUnit SelectForwardUnitToPassTheBall(Vector3 forwardDirection, bool discartItself)
     {
-        return _squad.SelectForwardUnitToPassTheBall(this, forwardDirectoin);
+        return _squad.SelectForwardUnitToPassTheBall(this, forwardDirection, discartItself);
     }
 
     public bool IsMoving()
@@ -132,19 +137,11 @@ public class BaseUnit : MonoBehaviour, IProbabilityBehaviorAgent
         //... 
     }
 
-    public void FillProbabilities(int selectorId, List<int> nodesIds, List<float> probabilities)
+    public GameZone GetGameZone()
     {
-        if(selectorId == AttacKWithBallSelectorKey.SelectorKey.Id)
-        {
-            for (int i = 0; i < probabilities.Count; ++i)
-            {
-                int probabilityId = nodesIds[i];
+        GameZone zone = _gameZoneManager.GetGameZone(transform.position, _squad.Side);
+        DebugUtils.Assert(zone != null, "zone != null");
 
-                if(probabilityId == AttacKWithBallSelectorKey.TryMovingWithBallToAForwardPosition.Id)
-                {
-                    probabilities[i] = 1;
-                }
-            }
-        }
+        return zone;
     }
 }

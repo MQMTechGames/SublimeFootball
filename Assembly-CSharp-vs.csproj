@@ -50,7 +50,6 @@
      <Compile Include="Assets\BT\BehaviorTree.cs" />
      <Compile Include="Assets\BT\BehaviorTreeViewer.cs" />
      <Compile Include="Assets\BT\IBehaviorWithTree.cs" />
-     <Compile Include="Assets\BT\IProbabilityBehaviorAgent.cs" />
      <Compile Include="Assets\BT\Memory.cs" />
      <Compile Include="Assets\BT\MemoryManager.cs" />
      <Compile Include="Assets\Ball.cs" />
