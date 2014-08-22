@@ -31,11 +31,11 @@ namespace MQMTech.AI.Mover.Action
     }
 
     [System.Serializable]
-    public class RemoveMessageIfNotNew : Behavior
+    public class RemoveKnowledgeIfNotNew : Behavior
     {
         AIMemoryKey _messageKey;
         
-        public RemoveMessageIfNotNew(AIMemoryKey messageKey)
+        public RemoveKnowledgeIfNotNew(AIMemoryKey messageKey)
         {
             _messageKey = messageKey;
         }

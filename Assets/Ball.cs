@@ -53,6 +53,11 @@ public class Ball : MonoBehaviour
         _rigidbody.velocity = vel;
     }
 
+    public void OnSmashed(Vector3 force)
+    {
+        _rigidbody.velocity = force;
+    }
+
     void Update()
     {
         if(_inTerrain)
@@ -76,7 +81,6 @@ public class Ball : MonoBehaviour
         }
         else if(CheckIsBounceSurface(other.gameObject))
         {
-            Debug.Log("Is Bounce");
             Bounce(other.contacts[0].normal);
         }
     }

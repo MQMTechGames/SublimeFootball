@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 using MQMTech.AI;
+using MQMTech.AI.Knowledge;
 
 [RequireComponent(typeof(BaseMover), typeof(BaseUnitAI))]
 public class BaseUnit : MonoBehaviour
 {
+    [SerializeField]
+    float _smashStrength = 68f;
+
     BaseUnitAI _unitAI;
     BaseMover _mover;
     BaseSquad _squad;
@@ -98,5 +102,32 @@ public class BaseUnit : MonoBehaviour
     public Vector3 SelectGoalShootPosition(Goal goal)
     {
         return goal.GetRandomGoalPosition();
+    }
+
+    public bool CheckOtherIsTeamMate(BaseUnit other)
+    {
+        return other.Squad == _squad;
+    }
+
+    public void SmashUnit(BaseUnit unit)
+    {
+        Vector3 smashForce = (unit.transform.position - transform.position).normalized;
+        smashForce *= _smashStrength;
+
+        SmashUnitMessage message = new SmashUnitMessage(this, smashForce);
+        unit.SendAIMessage(UnitAIMemory.SmashedMessage.Name, message);
+    }
+
+    public void SmashBall(Ball ball)
+    {
+        Vector3 smashForce = (ball.transform.position - transform.position).normalized;
+        smashForce *= _smashStrength;
+
+        ball.OnSmashed(smashForce);
+    }
+
+    public void ProcessBeingSmashed(BaseUnit smasher, Vector3 smashForce)
+    {
+        //... 
     }
 }

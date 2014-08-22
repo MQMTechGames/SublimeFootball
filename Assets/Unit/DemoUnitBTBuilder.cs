@@ -146,7 +146,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
         //-- nullify the global parameter squad with posession
         Sequence removeUnitOwnerFromBall = new Sequence();
-            removeUnitOwnerFromBall.AddChild(new SaveOwnerToBall(UnitAIMemory.Ball, UnitAIMemory.TemporalUnit));
+            removeUnitOwnerFromBall.AddChild(new SaveBallOwner(UnitAIMemory.Ball, UnitAIMemory.TemporalUnit));
             removeUnitOwnerFromBall.AddChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.TemporalUnit, UnitAIMemory.Unit));
             removeUnitOwnerFromBall.AddChild(new SetMemoryVar<BaseUnit>(UnitAIMemory.TemporalUnit, null));
             removeUnitOwnerFromBall.AddChild(new SetOwnerToBall(UnitAIMemory.TemporalUnit, UnitAIMemory.Ball));
@@ -161,7 +161,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             unsetBallPosession.AddChild(new SetMemoryVar<BaseSquad>(UnitAIMemory.g_PossessionSquad, null));
 
         Sequence checkOwnerVarIsNull = new Sequence();
-            checkOwnerVarIsNull.AddChild(new SaveOwnerToBall(UnitAIMemory.Ball, UnitAIMemory.TemporalUnit));
+            checkOwnerVarIsNull.AddChild(new SaveBallOwner(UnitAIMemory.Ball, UnitAIMemory.TemporalUnit));
             checkOwnerVarIsNull.AddChild(new CheckNullMemoryVar(UnitAIMemory.TemporalUnit));
 
         //-- Recover Possesion Subtree
@@ -274,7 +274,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToReactToBallPassMessage.AddChild(faceBall);
             tryToReactToBallPassMessage.AddChild(moveToTargetPosition);
             tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(waitWhileBallIsComingTillIsClose));
-            tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(new RemoveMessageIfNotNew(UnitAIMemory.OnBallPassed)));
+            tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(new RemoveKnowledgeIfNotNew(UnitAIMemory.OnBallPassed)));
 
         //* What to do when team have ball posession
             // Do something if I have not the ball controlled
@@ -292,10 +292,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
                         // easy pass
                         // forward pass
                     // try to shoot to the goal
-        //* What to do when the enemy have ball posession
-            // try to chase the target controller if he is close enough
-            // try to go back to a defensive position if I'm not in my defensive position
-            // move to block a possible shot from the enemy target to the goal
+
         //* what to do when noone have ball posession
             // Try to recover posession
                 // Try to chase the ball
@@ -372,6 +369,40 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToShoot.AddChild(unsetBallPosession);
         #endregion Shoot
 
+        #region defensive
+        Sequence tryToSmashBallFromOwner = new Sequence();
+            tryToSmashBallFromOwner.AddChild(new SaveBallOwner(UnitAIMemory.Ball, UnitAIMemory.BallOwner));
+            tryToSmashBallFromOwner.AddChild(new CheckNotNullMemoryVar(UnitAIMemory.BallOwner));
+            tryToSmashBallFromOwner.AddChild(new Inverter().SetChild(new CheckUnitIsTeamMate(UnitAIMemory.Unit, UnitAIMemory.BallOwner)));
+            tryToSmashBallFromOwner.AddChild(new Succeder().SetChild(new SmashUnit(UnitAIMemory.Unit, UnitAIMemory.BallOwner)));
+            tryToSmashBallFromOwner.AddChild(new Succeder().SetChild(new SmashBall(UnitAIMemory.Unit, UnitAIMemory.Ball)));
+            tryToSmashBallFromOwner.AddChild(setBallControlled);
+
+        Selector controllOrPushTheBallIfHasEnemyOwner = new Selector();
+            controllOrPushTheBallIfHasEnemyOwner.AddChild(tryToSmashBallFromOwner);
+            controllOrPushTheBallIfHasEnemyOwner.AddChild(setBallControlled);
+
+        //-- Recover Possesion Subtree
+        Sequence catchAndControllOrPushTheBall = new Sequence();
+            catchAndControllOrPushTheBall.AddChild(moveToBallTransform);
+            catchAndControllOrPushTheBall.AddChild(checkUnitBallDistance);
+            catchAndControllOrPushTheBall.AddChild(controllOrPushTheBallIfHasEnemyOwner);
+
+        ActiveSequence chatchAncControllOrPushTheBallIfClose = new ActiveSequence();
+            chatchAncControllOrPushTheBallIfClose.AddChild(new CheckUnitDistanceBetweenComponents(UnitAIMemory.Unit, UnitAIMemory.Ball, 100f));
+            chatchAncControllOrPushTheBallIfClose.AddChild(catchAndControllOrPushTheBall);
+            
+        Sequence tryToRecoverTheBallWhenDefensing = new Sequence();
+            tryToRecoverTheBallWhenDefensing.AddChild(chatchAncControllOrPushTheBallIfClose);
+            //tryToRecoverTheBallWhenDefensing.AddChild(catchAndControllOrPushTheBall);
+
+        Sequence tryToDefend = new Sequence();
+            tryToDefend.AddChild(new CheckNotNullMemoryVar(UnitAIMemory.g_PossessionSquad));
+            tryToDefend.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<BaseSquad>(UnitAIMemory.g_PossessionSquad, UnitAIMemory.Squad)));
+            tryToDefend.AddChild(findAndSaveClosestBallProperties);
+            tryToDefend.AddChild(tryToRecoverTheBallWhenDefensing);
+        #endregion defensive
+
         ProbabilitySelector attackWithBall = new ProbabilitySelector();
             attackWithBall.AddChild(tryToPassTheBall, 3);
             attackWithBall.AddChild(tryMovingWithBallToAForwardPosition, 10);
@@ -391,9 +422,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToAttack.AddChild(new CheckAreEqualMemoryVars<BaseSquad>(UnitAIMemory.g_PossessionSquad, UnitAIMemory.Squad));
                 tryToAttack.AddChild(chooseAttack);
 
-        Sequence tryToDefend = new Sequence();
-            tryToDefend.AddChild(new Failure());
-
         Sequence tryToRecoverTheBallWithoutPossession = new Sequence();
             tryToRecoverTheBallWithoutPossession.AddChild(checkOnBallShotIsNullOrInvalid);
             tryToRecoverTheBallWithoutPossession.AddChild(recoverTheBall);
@@ -406,6 +434,19 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             mainAI.AddChild(tryToAttack);
             mainAI.AddChild(tryToDefend);
             mainAI.AddChild(tryToRecoverPosession);
+
+        Sequence tryToReactOnSmash = new Sequence();
+            tryToReactOnSmash.AddChild(new CheckAIMessageIsValidOrRemove(UnitAIMemory.SmashedMessage, 1f));
+            tryToReactOnSmash.AddChild(new SetKnowledgeStatus(UnitAIMemory.SmashedMessage, KnowledgeStatus.PROCESSED));
+            tryToReactOnSmash.AddChild(new ProcessBeingSmashed(UnitAIMemory.Unit, UnitAIMemory.SmashedMessage));
+            tryToReactOnSmash.AddChild(new RemoveKnowledgeIfNotNew(UnitAIMemory.SmashedMessage));
+            tryToReactOnSmash.AddChild(unsetBallControlled);
+            tryToReactOnSmash.AddChild(unsetBallPosession);
+            tryToReactOnSmash.AddChild(new TimeWaiter(2f));
+
+        ActiveSelector AI = new ActiveSelector();
+            AI.AddChild(tryToReactOnSmash);
+            AI.AddChild(mainAI);
 
         _bt = new BehaviorTree();
 

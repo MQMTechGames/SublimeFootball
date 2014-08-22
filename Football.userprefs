@@ -1,12 +1,18 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Unit\DemoUnitBTBuilder.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GameZone.cs">
     <Files>
-      <File FileName="Assets\Unit\DemoUnitBTBuilder.cs" Line="373" Column="184" />
-      <File FileName="Assets\Unit\BaseUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\Unit\Mover\CreateBallPassedMessage.cs" Line="1" Column="1" />
-      <File FileName="Assets\BT\MemoryManager.cs" Line="74" Column="66" />
-      <File FileName="Assets\BT\BehaviorTreeViewer.cs" Line="158" Column="1" />
+      <File FileName="Assets\Unit\BaseUnit.cs" Line="131" Column="15" />
+      <File FileName="Assets\Knowledge\Message\AIMessage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Unit\DemoUnitBTBuilder.cs" Line="1" Column="1" />
+      <File FileName="Assets\Ball.cs" Line="1" Column="1" />
+      <File FileName="Assets\Unit\BaseUnitAI.cs" Line="1" Column="1" />
+      <File FileName="Assets\BT\AIMemoryKey.cs" Line="1" Column="1" />
+      <File FileName="Assets\Hash\MemoryKeysHashCodeManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Unit\Mover\UnitBTActions.cs" Line="1" Column="1" />
+      <File FileName="Assets\GameZone.cs" Line="4" Column="38" />
+      <File FileName="Assets\GameZoneType.cs" Line="1" Column="1" />
+      <File FileName="Assets\GameZonesManager.cs" Line="19" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

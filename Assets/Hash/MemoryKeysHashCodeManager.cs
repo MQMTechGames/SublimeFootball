@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 public static class MemoryKeysHashCodeManager 
 {
-    static Dictionary<string, int> _nameMap = new Dictionary<string, int>();
+    static Dictionary<string, AIMemoryKey> _nameMap = new Dictionary<string, AIMemoryKey>();
     static Dictionary<int, string> _codeMap = new Dictionary<int, string>();
 
     public static int RegisterMemoryKey(AIMemoryKey key)
     {
-        string nameContext = key.Name + "_" + key.Context.ToString();
+        string nameContext = CreateNameContextString(key.Name, key.Context);
         bool containsNameContext = _nameMap.ContainsKey(nameContext);
         DebugUtils.Assert(!containsNameContext, "the name: " + nameContext + " is already inserted in the same context");
 
@@ -23,8 +23,8 @@ public static class MemoryKeysHashCodeManager
         containsHashCode = _codeMap.ContainsKey(hashCode);
         DebugUtils.Assert(!containsHashCode, "the hash code already exist");
 
+        _nameMap.Add(nameContext, key);
         _codeMap.Add(hashCode, nameContext);
-        _nameMap.Add(nameContext, hashCode);
 
         return hashCode;
     }
@@ -32,6 +32,18 @@ public static class MemoryKeysHashCodeManager
     public static string GetMemoryNameByHashCode(int hashCode)
     {
         return _codeMap[hashCode];
+    }
+
+    public static bool TryMemoryMemoryKeyByNameAndContext(string name, AIMemoryKey.ContextType context, out AIMemoryKey key)
+    {
+        string nameContext = CreateNameContextString(name, context);
+
+        return _nameMap.TryGetValue(nameContext, out key);
+    }
+
+    static string CreateNameContextString(string name, AIMemoryKey.ContextType context)
+    {
+        return name + "_" + context.ToString();
     }
 
     public static void Clear()

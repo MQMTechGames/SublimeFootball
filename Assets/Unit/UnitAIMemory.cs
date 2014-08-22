@@ -89,4 +89,7 @@ public static class UnitAIMemory
     // Ball Pass
     public static AIMemoryKey BallPasserUnit = new AIMemoryKey("BallPasserUnit", AIMemoryKey.ContextType.Squad);
     public static AIMemoryKey BallMaxHeight = new AIMemoryKey("BallMaxHeight");
+
+    // Messages
+    public static AIMemoryKey SmashedMessage = new AIMemoryKey("SmashedMessage");
 }

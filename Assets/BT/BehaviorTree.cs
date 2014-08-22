@@ -328,6 +328,11 @@ namespace MQMTech.AI.BT
     			
     			if(status != Status.FAILURE)
     			{
+                    if(i < _childrenIdx)
+                    {
+                        _children[_childrenIdx].OnReset();
+                    }
+
     				_childrenIdx = i;
     				return _status;
     			}
