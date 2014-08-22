@@ -359,81 +359,72 @@ namespace MQMTech.AI.BT
 
     public class ProbabilitySelector : Composite
     {
-        public struct ProbabilityData
+        AIMemoryKey _agentKey;
+        IProbabilityBehaviorAgent _agent;
+
+        int _selectorId;
+        List<int> _nodeIds = new List<int>();
+        List<float> _probabilities = new List<float>();
+        List<float> _probabilitiesStart = new List<float>();
+        List<float> _probabilitiesEnd = new List<float>();
+
+        public ProbabilitySelector(int selectorId, AIMemoryKey agentKey)
         {
-            public float Probability;
-
-            public float ProbabilityNormalizedStart;
-            public float ProbabilityNormalizedEnd;
-
-            public ProbabilityData(float probability)
-            {
-                Probability = probability;
-                ProbabilityNormalizedStart = 0f;
-                ProbabilityNormalizedEnd = 0f;
-            }
-
-            public void SetNormalizedProbabilities(float probabilityStart, float probabilityEnd)
-            {
-                ProbabilityNormalizedStart = probabilityStart;
-                ProbabilityNormalizedEnd = probabilityEnd;
-            }
-
-            public bool IsValid(float value)
-            {
-                return value >= ProbabilityNormalizedStart && value <= ProbabilityNormalizedEnd;
-            }
+            _selectorId = selectorId;
+            _agentKey = agentKey;
         }
 
-        List<ProbabilityData> _probabilities = new List<ProbabilityData>();
-
-        public override void OnInit(BehaviorTree bt)
-        {
-            base.OnInit(bt);
-
-            CalculateNormalizedProbabilities();
-        }
-
-        void CalculateNormalizedProbabilities()
-        {
-            float totalProbability = 0f;
-            
-            foreach (ProbabilityData probabilityData in _probabilities)
-            {
-                totalProbability += probabilityData.Probability;
-            }
-            
-            float currentProbability = 0f;
-            for (int i = 0; i < _probabilities.Count; ++i)
-            {
-                ProbabilityData currentProbabilityData = _probabilities[i];
-                ProbabilityData newProbabilityData = new ProbabilityData(currentProbabilityData.Probability);
-                
-                newProbabilityData.ProbabilityNormalizedStart = currentProbability;
-                newProbabilityData.ProbabilityNormalizedEnd = currentProbability + newProbabilityData.Probability / totalProbability;
-                
-                currentProbability = newProbabilityData.ProbabilityNormalizedEnd;
-                
-                _probabilities[i] = newProbabilityData;
-            }
-        }
-        
-        public void AddChild(Behavior child, float probability)
+        public void AddChild(Behavior child, int nodeId)
         {
             base.AddChild(child);
-            _probabilities.Add(new ProbabilityData(probability));
+            _nodeIds.Add(nodeId);
         }
 
         public override void OnInitialize()
         {
             base.OnInitialize();
+
+            GetAgent();
+            CalculateNormalizedProbabilities();
+            SelectRandomChild();
+        }
+
+        void GetAgent()
+        {
+            _bt.GetMemoryObject(_agentKey, out _agent);
+            DebugUtils.Assert(_agent != null, "_agent != null");
+        }
+
+        void CalculateNormalizedProbabilities()
+        {
+            _agent.FillProbabilities(_selectorId, _nodeIds, _probabilities);
             
+            float totalProbability = 0f;
+            
+            foreach (float probability in _probabilities)
+            {
+                totalProbability += probability;
+            }
+            
+            float currentProbability = 0f;
+            for (int i = 0; i < _probabilities.Count; ++i)
+            {
+                float probability = _probabilities[i];
+                
+                _probabilitiesStart[i] = currentProbability;
+                _probabilitiesEnd[i] = currentProbability + probability / totalProbability;
+                
+                currentProbability = _probabilitiesEnd[i];
+            }
+        }
+
+        void SelectRandomChild()
+        {
             float probabilityNorm = UnityEngine.Random.Range(0f, 1f);
             for (int i = 0; i < _probabilities.Count; ++i)
             {
-                ProbabilityData probabilityData = _probabilities[i];
-
-                if(probabilityData.IsValid(probabilityNorm))
+                bool isValid = probabilityNorm >= _probabilitiesStart[i] && probabilityNorm <= _probabilitiesEnd[i];
+                if(isValid)
                 {
                     _childrenIdx = i;
                     break;

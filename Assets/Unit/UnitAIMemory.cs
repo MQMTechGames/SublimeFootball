@@ -92,4 +92,7 @@ public static class UnitAIMemory
 
     // Messages
     public static AIMemoryKey SmashedMessage = new AIMemoryKey("SmashedMessage");
+
+    // Probability Selector
+    public static AIMemoryKey ProbabilityAgent = new AIMemoryKey("ProbabilityAgent");
 }

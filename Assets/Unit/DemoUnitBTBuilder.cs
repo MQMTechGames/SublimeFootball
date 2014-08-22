@@ -17,13 +17,19 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
     [SerializeField]
     SharedMemory _matchMemory;
+
+    [SerializeField]
+    IProbabilityBehaviorAgent _probabilitySelectorAgent;
     
     void Awake()
     {
         _unit = GameObjectUtils.GetInterfaceObject<BaseUnit>(gameObject);
-        _match = FindObjectOfType<Match>();
 
+        _match = FindObjectOfType<Match>();
         DebugUtils.Assert(_match!=null, "_match!=null");
+
+        _probabilitySelectorAgent = GameObjectUtils.GetInterfaceObject<IProbabilityBehaviorAgent>(gameObject);
+        DebugUtils.Assert(_probabilitySelectorAgent!=null, "_probabilitySelectorAgent!=null");
     }
     
     public BehaviorTree GetBehaviorTree()
@@ -403,10 +409,10 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToDefend.AddChild(tryToRecoverTheBallWhenDefensing);
         #endregion defensive
 
-        ProbabilitySelector attackWithBall = new ProbabilitySelector();
-            attackWithBall.AddChild(tryToPassTheBall, 3);
-            attackWithBall.AddChild(tryMovingWithBallToAForwardPosition, 10);
-            attackWithBall.AddChild(tryToShoot, 1);
+        ProbabilitySelector attackWithBall = new ProbabilitySelector(AttacKWithBallSelectorKey.SelectorKey.Id, UnitAIMemory.ProbabilityAgent);
+            attackWithBall.AddChild(tryToPassTheBall, AttacKWithBallSelectorKey.TryToPassTheBall.Id);
+            attackWithBall.AddChild(tryMovingWithBallToAForwardPosition, AttacKWithBallSelectorKey.TryMovingWithBallToAForwardPosition.Id);
+            attackWithBall.AddChild(tryToShoot, AttacKWithBallSelectorKey.TryMovingWithBallToAForwardPosition.Id);
 
         // Attack with ball controlled
         Sequence tryToAttackWithBall = new Sequence();
@@ -458,6 +464,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         // Init variables
         _bt.SetMemoryObject(UnitAIMemory.Unit, _unit);
         _bt.SetMemoryObject(UnitAIMemory.Squad, _unit.Squad);
+        _bt.SetMemoryObject(UnitAIMemory.ProbabilityAgent, _probabilitySelectorAgent);
         _bt.SetMemoryObject(UnitAIMemory.TrueVar, true);
         _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
         _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);

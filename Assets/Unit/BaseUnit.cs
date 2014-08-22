@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using MQMTech.AI;
 using MQMTech.AI.Knowledge;
 
 [RequireComponent(typeof(BaseMover), typeof(BaseUnitAI))]
-public class BaseUnit : MonoBehaviour
+public class BaseUnit : MonoBehaviour, IProbabilityBehaviorAgent
 {
     [SerializeField]
     float _smashStrength = 68f;
@@ -129,5 +130,21 @@ public class BaseUnit : MonoBehaviour
     public void ProcessBeingSmashed(BaseUnit smasher, Vector3 smashForce)
     {
         //... 
+    }
+
+    public void FillProbabilities(int selectorId, List<int> nodesIds, List<float> probabilities)
+    {
+        if(selectorId == AttacKWithBallSelectorKey.SelectorKey.Id)
+        {
+            for (int i = 0; i < probabilities.Count; ++i)
+            {
+                int probabilityId = nodesIds[i];
+
+                if(probabilityId == AttacKWithBallSelectorKey.TryMovingWithBallToAForwardPosition.Id)
+                {
+                    probabilities[i] = 1;
+                }
+            }
+        }
     }
 }

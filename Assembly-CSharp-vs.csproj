@@ -50,6 +50,7 @@
      <Compile Include="Assets\BT\BehaviorTree.cs" />
      <Compile Include="Assets\BT\BehaviorTreeViewer.cs" />
      <Compile Include="Assets\BT\IBehaviorWithTree.cs" />
+     <Compile Include="Assets\BT\IProbabilityBehaviorAgent.cs" />
      <Compile Include="Assets\BT\Memory.cs" />
      <Compile Include="Assets\BT\MemoryManager.cs" />
      <Compile Include="Assets\Ball.cs" />
@@ -79,6 +80,7 @@
      <Compile Include="Assets\TestCustomMover.cs" />
      <Compile Include="Assets\TestNavMeshAgent.cs" />
      <Compile Include="Assets\TestZoneManager.cs" />
+     <Compile Include="Assets\Unit\AttacKWithBallSelectorKey.cs" />
      <Compile Include="Assets\Unit\BaseUnit.cs" />
      <Compile Include="Assets\Unit\BaseUnitAI.cs" />
      <Compile Include="Assets\Unit\BaseUnitMover.cs" />
@@ -94,12 +96,15 @@
      <Compile Include="Assets\Unit\Mover\MoverBTActions.cs" />
      <Compile Include="Assets\Unit\Mover\SimpleUnitMoverBuilder.cs" />
      <Compile Include="Assets\Unit\Mover\UnitBTActions.cs" />
+     <Compile Include="Assets\Unit\NewBehaviourScript.cs" />
+     <Compile Include="Assets\Unit\ProbabilitySelectorKey.cs" />
      <Compile Include="Assets\Unit\UnitAIConstants.cs" />
      <Compile Include="Assets\Unit\UnitAIMemory.cs" />
      <Compile Include="Assets\Utils\DebugUtils.cs" />
      <Compile Include="Assets\Utils\GameObjectUtils.cs" />
      <Compile Include="Assets\Utils\Timer.cs" />
      <Compile Include="Assets\Utils\Vector3Utils.cs" />
+     <Compile Include="Assets\ZoneAttackerProbabilties.cs" />
      <None Include="Assets\Render\Shaders\Noise.cginc" />
      <None Include="Assets\Render\Shaders\SupportScorePanel.shader" />
      <None Include="Assets\Render\Shaders\Waterline.shader" />
