@@ -1,12 +1,10 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public struct AIMemoryKey
+﻿public struct AIMemoryKey
 {
     public enum ContextType
     {
-        Unit,
-        Squad,
+        Local,
+        Agent,
+        Shared,
         Global
     }
 
@@ -15,7 +13,7 @@ public struct AIMemoryKey
     public int HashCode { get; private set; }
 
     public AIMemoryKey(string name)
-        :this(name, ContextType.Unit)
+        :this(name, ContextType.Agent)
     {
     }
 

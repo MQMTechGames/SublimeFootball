@@ -6,6 +6,7 @@ namespace MQMTech.AI.BT
     public class BehaviorTree
     {
     	Behavior _root;
+        public Behavior RootBehavior { get { return _root; } }
     	Behavior.Status _status;
 
         MemoryManager _memoryManager;
@@ -14,17 +15,42 @@ namespace MQMTech.AI.BT
         public BehaviorTree()
         {
             _memoryManager = new MemoryManager();
-            _memoryManager.UnitMemory = new Memory();
+            _memoryManager.LocalMemory = new Memory();
+        }
+
+        public void SetAgentMemory(Memory memory)
+        {
+            _memoryManager.AgentMemory = memory;
+        }
+
+        public Memory GetAgentMemory()
+        {
+            return _memoryManager.AgentMemory;
+        }
+
+        public void SetLocalMemory(Memory memory)
+        {
+            _memoryManager.LocalMemory = memory;
         }
 
         public void SetSharedMemory(Memory memory)
         {
-            _memoryManager.SquadMemory = memory;
+            _memoryManager.SharedMemory = memory;
+        }
+
+        public Memory GetSharedMemory()
+        {
+            return _memoryManager.SharedMemory;
         }
 
         public void SetGlobalMemory(Memory memory)
         {
             _memoryManager.GlobalMemory = memory;
+        }
+
+        public Memory GetGlobalMemory()
+        {
+            return _memoryManager.GlobalMemory;
         }
 
         public bool GetMemoryObject<T>(AIMemoryKey key, out T oVar)

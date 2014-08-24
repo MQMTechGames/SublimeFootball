@@ -47,11 +47,18 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\BT\AIMemoryKey.cs" />
+     <Compile Include="Assets\BT\AIMemoryKeyPair.cs" />
      <Compile Include="Assets\BT\BehaviorTree.cs" />
+     <Compile Include="Assets\BT\BehaviorTreeManager.cs" />
      <Compile Include="Assets\BT\BehaviorTreeViewer.cs" />
      <Compile Include="Assets\BT\IBehaviorWithTree.cs" />
      <Compile Include="Assets\BT\Memory.cs" />
      <Compile Include="Assets\BT\MemoryManager.cs" />
+     <Compile Include="Assets\BT\Subtrees\AttackBehaviorTree\AttackWithoutBallTreeBuilder.cs" />
+     <Compile Include="Assets\BT\Subtrees\AttackBehaviorTree\SubtreeAttackWithoutBallBehavior.cs" />
+     <Compile Include="Assets\BT\Subtrees\BehaviorSubtreeNames.cs" />
+     <Compile Include="Assets\BT\Subtrees\SubBehaviorTreeLoader.cs" />
+     <Compile Include="Assets\BT\Subtrees\SubtreeBehavior.cs" />
      <Compile Include="Assets\Ball.cs" />
      <Compile Include="Assets\Bound.cs" />
      <Compile Include="Assets\CameraController.cs" />
@@ -95,7 +102,6 @@
      <Compile Include="Assets\Unit\Mover\MoverBTActions.cs" />
      <Compile Include="Assets\Unit\Mover\SimpleUnitMoverBuilder.cs" />
      <Compile Include="Assets\Unit\Mover\UnitBTActions.cs" />
-     <Compile Include="Assets\Unit\NewBehaviourScript.cs" />
      <Compile Include="Assets\Unit\ProbabilitySelectorKey.cs" />
      <Compile Include="Assets\Unit\UnitAIConstants.cs" />
      <Compile Include="Assets\Unit\UnitAIMemory.cs" />

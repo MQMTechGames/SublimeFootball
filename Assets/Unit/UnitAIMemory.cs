@@ -37,7 +37,7 @@ public static class UnitAIMemory
     public static AIMemoryKey SelectedMateUnit = new AIMemoryKey("SelectedMateUnit");
     public static AIMemoryKey SelectedMateTransform = new AIMemoryKey("SelectedMateTransform");
     public static AIMemoryKey BallDistance = new AIMemoryKey("BallDistance");
-    public static AIMemoryKey NumUnitsToRecoverPossessionCounter = new AIMemoryKey("NumUnitsToRecoverPosessionCounter", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey NumUnitsToRecoverPossessionCounter = new AIMemoryKey("NumUnitsToRecoverPosessionCounter", AIMemoryKey.ContextType.Shared);
     
     // Distance
     public static AIMemoryKey MaxUnitBallDistance = new AIMemoryKey("MaxUnitBallDistance");
@@ -47,8 +47,8 @@ public static class UnitAIMemory
     // Message
     public static AIMemoryKey MessageValidDuration = new AIMemoryKey("MessageValidDuration");
     public static AIMemoryKey MessageList = new AIMemoryKey("MessageList");
-    public static AIMemoryKey OnBallPassed = new AIMemoryKey("OnWillPassTheBall", AIMemoryKey.ContextType.Squad);
-    public static AIMemoryKey OnBallShot = new AIMemoryKey("OnBallShot", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey OnBallPassed = new AIMemoryKey("OnWillPassTheBall", AIMemoryKey.ContextType.Shared);
+    public static AIMemoryKey OnBallShot = new AIMemoryKey("OnBallShot", AIMemoryKey.ContextType.Shared);
     public static AIMemoryKey PossessionMateUnit = new AIMemoryKey("PossessionMateUnit");
     public static AIMemoryKey BallTargetMateUnit = new AIMemoryKey("BallTargetMateUnit");
     
@@ -64,7 +64,7 @@ public static class UnitAIMemory
     public static AIMemoryKey RecoverPossessionCoolDownTimer = new AIMemoryKey("RecoverPossessionCoolDownTimer");
 
     // Posession
-    public static AIMemoryKey HaveSquadPosession = new AIMemoryKey("HaveSquadPosession", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey HaveSquadPosession = new AIMemoryKey("HaveSquadPosession", AIMemoryKey.ContextType.Shared);
     public static AIMemoryKey IsBallControlled = new AIMemoryKey("IsBallControlled");
     public static AIMemoryKey BallOwner = new AIMemoryKey("BallOwner");
 
@@ -81,13 +81,13 @@ public static class UnitAIMemory
     public static AIMemoryKey Squad = new AIMemoryKey("Squad");
 
     // Goal
-    public static AIMemoryKey Goal = new AIMemoryKey("Goal", AIMemoryKey.ContextType.Squad);
-    public static AIMemoryKey GoalPosition = new AIMemoryKey("GoalPosition", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey Goal = new AIMemoryKey("Goal", AIMemoryKey.ContextType.Shared);
+    public static AIMemoryKey GoalPosition = new AIMemoryKey("GoalPosition", AIMemoryKey.ContextType.Shared);
     public static AIMemoryKey ShootTargetPosition = new AIMemoryKey("ShootTargetPosition");
     public static AIMemoryKey ShotStrength = new AIMemoryKey("ShotStrength");
 
     // Ball Pass
-    public static AIMemoryKey BallPasserUnit = new AIMemoryKey("BallPasserUnit", AIMemoryKey.ContextType.Squad);
+    public static AIMemoryKey BallPasserUnit = new AIMemoryKey("BallPasserUnit", AIMemoryKey.ContextType.Shared);
     public static AIMemoryKey BallMaxHeight = new AIMemoryKey("BallMaxHeight");
 
     // Messages
@@ -100,4 +100,7 @@ public static class UnitAIMemory
 
     // Zones
     public static AIMemoryKey ZoneType = new AIMemoryKey("ZoneType");
+
+    // Test
+    public static AIMemoryKey AttackSpeed = new AIMemoryKey("AttackSpeed");
 }

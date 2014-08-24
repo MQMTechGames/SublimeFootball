@@ -486,7 +486,8 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         // Choose attack type
         Selector chooseAttack = new Selector();
             chooseAttack.AddChild(tryToAttackWithBall);
-            chooseAttack.AddChild(tryToAttackWithoutBall);
+            //chooseAttack.AddChild(tryToAttackWithoutBall);
+            chooseAttack.AddChild(new SubtreeAttackWithoutBallBehavior(UnitAIMemory.AttackSpeed, UnitAIMemory.AttackSpeed));
 
         Sequence tryToAttack = new Sequence();
             tryToAttack.AddChild(new CheckAreEqualMemoryVars<BaseSquad>(UnitAIMemory.g_PossessionSquad, UnitAIMemory.Squad));
@@ -520,10 +521,11 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
 
         _bt = new BehaviorTree();
 
+        _bt.SetAgentMemory(new Memory());
         _bt.SetSharedMemory(_squadMemory.Memory);
         _bt.SetGlobalMemory(_matchMemory.Memory);
 
-        DebugUtils.Assert(_bt.MemoryManager.SquadMemory != null, "_bt.SharedMemory != null");
+        DebugUtils.Assert(_bt.MemoryManager.SharedMemory != null, "_bt.SharedMemory != null");
 
         // Init variables
         _bt.SetMemoryObject(UnitAIMemory.Unit, _unit);
@@ -531,6 +533,8 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         _bt.SetMemoryObject(UnitAIMemory.TrueVar, true);
         _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
         _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);
+
+        _bt.SetMemoryObject(UnitAIMemory.AttackSpeed, 6f);
         
         _bt.Init(mainAI);
         return _bt;

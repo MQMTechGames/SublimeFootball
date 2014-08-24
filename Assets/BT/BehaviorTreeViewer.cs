@@ -103,18 +103,18 @@ namespace MQMTech.AI.BT
                 yOffset += 25;
             }
 
-            if(_bt.MemoryManager.SquadMemory != null)
+            if(_bt.MemoryManager.SharedMemory != null)
             {
                 GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Squad Memory");
-                RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.SquadMemory.Map);
+                RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.SharedMemory.Map);
 
                 yOffset += 25;
             }
 
-            if(_bt.MemoryManager.UnitMemory != null)
+            if(_bt.MemoryManager.LocalMemory != null)
             {
                 GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Unit Memory");
-                RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.UnitMemory.Map);
+                RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.LocalMemory.Map);
                 
                 yOffset += 20;
             }

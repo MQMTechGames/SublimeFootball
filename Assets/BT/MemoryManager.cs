@@ -1,25 +1,32 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class MemoryManager
 {
-    Memory _unitMemory = new Memory();
-    public Memory UnitMemory{ get{ return _unitMemory; } set{ _unitMemory = value; } }
+    Memory _localMemory = new Memory();
+    public Memory LocalMemory{ get{ return _localMemory; } set{ _localMemory = value; } }
+
+    Memory _agentMemory = new Memory();
+    public Memory AgentMemory{ get{ return _agentMemory; } set{ _agentMemory = value; } }
     
-    Memory _squadMemory;
-    public Memory SquadMemory{ get{ return _squadMemory; } set{ _squadMemory = value; } }
+    Memory _sharedMemory;
+    public Memory SharedMemory{ get{ return _sharedMemory; } set{ _sharedMemory = value; } }
 
     Memory _globalMemory;
     public Memory GlobalMemory{ get{ return _globalMemory; } set{ _globalMemory = value; } }
 
     public bool GetMemoryObject<T>(AIMemoryKey key, out T oVar)
     {
-        if(key.Context == AIMemoryKey.ContextType.Unit)
+        if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            return UnitMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+            return LocalMemory.GetMemoryObject<T>(key.HashCode, out oVar);
         }
-        else if(key.Context == AIMemoryKey.ContextType.Squad)
+        else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            return SquadMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+            return AgentMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+        }
+        else if(key.Context == AIMemoryKey.ContextType.Shared)
+        {
+            return SharedMemory.GetMemoryObject<T>(key.HashCode, out oVar);
         }
         else
         {
@@ -29,13 +36,17 @@ public class MemoryManager
     
     public void SetMemoryObject<T>(AIMemoryKey key, T iVar)
     {
-        if(key.Context == AIMemoryKey.ContextType.Unit)
+        if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            UnitMemory.SetMemoryObject<T>(key.HashCode, iVar);
+            LocalMemory.SetMemoryObject<T>(key.HashCode, iVar);
         }
-        else if(key.Context == AIMemoryKey.ContextType.Squad)
+        else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            SquadMemory.SetMemoryObject<T>(key.HashCode, iVar);
+            AgentMemory.SetMemoryObject<T>(key.HashCode, iVar);
+        }
+        else if(key.Context == AIMemoryKey.ContextType.Shared)
+        {
+            SharedMemory.SetMemoryObject<T>(key.HashCode, iVar);
         }
         else
         {
@@ -45,13 +56,17 @@ public class MemoryManager
     
     public bool RemoveMemoryObject(AIMemoryKey key)
     {
-        if(key.Context == AIMemoryKey.ContextType.Unit)
+        if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            return UnitMemory.RemoveMemoryObject(key.HashCode);
+            return LocalMemory.RemoveMemoryObject(key.HashCode);
         }
-        else if(key.Context == AIMemoryKey.ContextType.Squad)
+        else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            return SquadMemory.RemoveMemoryObject(key.HashCode);
+            return AgentMemory.RemoveMemoryObject(key.HashCode);
+        }
+        else if(key.Context == AIMemoryKey.ContextType.Shared)
+        {
+            return SharedMemory.RemoveMemoryObject(key.HashCode);
         }
         else
         {
@@ -61,13 +76,17 @@ public class MemoryManager
     
     public bool ContainsMemoryObject(AIMemoryKey key)
     {
-        if(key.Context == AIMemoryKey.ContextType.Unit)
+        if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            return UnitMemory.ContainsMemoryObject(key.HashCode);
+            return LocalMemory.ContainsMemoryObject(key.HashCode);
         }
-        else if(key.Context == AIMemoryKey.ContextType.Squad)
+        else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            return SquadMemory.ContainsMemoryObject(key.HashCode);
+            return AgentMemory.ContainsMemoryObject(key.HashCode);
+        }
+        else if(key.Context == AIMemoryKey.ContextType.Shared)
+        {
+            return SharedMemory.ContainsMemoryObject(key.HashCode);
         }
         else
         {

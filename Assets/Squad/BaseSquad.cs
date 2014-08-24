@@ -78,7 +78,11 @@ public class BaseSquad : MonoBehaviour
 
     public BaseUnit SelectForwardUnitToPassTheBall(BaseUnit passerUnit, Vector3 forwardDirection, bool discartItself)
     {
-        DebugUtils.Assert(_units.Length > 1);
+        DebugUtils.Assert(_units.Length > 1, "no mates to pass the ball :(");
+        if(_units.Length < 1)
+        {
+            return null;
+        }
         
         float closestDist = float.MinValue;
         BaseUnit closestUnit = null;
@@ -105,7 +109,11 @@ public class BaseSquad : MonoBehaviour
 
     public BaseUnit SelectRandomUnitToPassTheBall(BaseUnit passerUnit)
     {
-        DebugUtils.Assert(_units.Length > 1);
+        DebugUtils.Assert(_units.Length > 1, "no mates to pass the ball :(");
+        if(_units.Length < 1)
+        {
+            return null;
+        }
 
         BaseUnit selected = null;
         while(selected == null || selected == passerUnit)

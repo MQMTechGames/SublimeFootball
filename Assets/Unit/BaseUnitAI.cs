@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using MQMTech.AI.BT;
 using MQMTech.AI.Knowledge;
 
@@ -20,7 +20,7 @@ namespace MQMTech.AI
         public void SendAIMessage<T>(string messageName, T message)
         {
             AIMemoryKey memoryKey;
-            if(!MemoryKeysHashCodeManager.TryMemoryMemoryKeyByNameAndContext(messageName, AIMemoryKey.ContextType.Unit, out memoryKey))
+            if(!MemoryKeysHashCodeManager.TryMemoryMemoryKeyByNameAndContext(messageName, AIMemoryKey.ContextType.Agent, out memoryKey))
             {
                 memoryKey = new AIMemoryKey(messageName);
             }
