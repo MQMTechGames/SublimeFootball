@@ -54,8 +54,8 @@
      <Compile Include="Assets\BT\IBehaviorWithTree.cs" />
      <Compile Include="Assets\BT\Memory.cs" />
      <Compile Include="Assets\BT\MemoryManager.cs" />
+     <Compile Include="Assets\BT\Subtrees\AttackBehaviorTree\AttackWithoutBallBehavior.cs" />
      <Compile Include="Assets\BT\Subtrees\AttackBehaviorTree\AttackWithoutBallTreeBuilder.cs" />
-     <Compile Include="Assets\BT\Subtrees\AttackBehaviorTree\SubtreeAttackWithoutBallBehavior.cs" />
      <Compile Include="Assets\BT\Subtrees\BehaviorSubtreeNames.cs" />
      <Compile Include="Assets\BT\Subtrees\SubBehaviorTreeLoader.cs" />
      <Compile Include="Assets\BT\Subtrees\SubtreeBehavior.cs" />

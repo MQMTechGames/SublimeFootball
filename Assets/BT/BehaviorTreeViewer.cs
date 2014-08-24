@@ -97,23 +97,43 @@ namespace MQMTech.AI.BT
 
             if(_bt.MemoryManager.GlobalMemory != null)
             {
+                Color prevColor = GUI.color;
+                GUI.color = Color.green;
                 GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Global Memory");
+                GUI.color = prevColor;
                 RenderMemoryVariables(xOffset, ref  yOffset, _bt.MemoryManager.GlobalMemory.Map);
                 
-                yOffset += 25;
+                yOffset += 20;
             }
 
             if(_bt.MemoryManager.SharedMemory != null)
             {
-                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Squad Memory");
+                Color prevColor = GUI.color;
+                GUI.color = Color.green;
+                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Shared Memory");
+                GUI.color = prevColor;
                 RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.SharedMemory.Map);
+                
+                yOffset += 20;
+            }
 
-                yOffset += 25;
+            if(_bt.MemoryManager.AgentMemory != null)
+            {
+                Color prevColor = GUI.color;
+                GUI.color = Color.green;
+                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Agent Memory");
+                GUI.color = prevColor;
+                RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.AgentMemory.Map);
+
+                yOffset += 20;
             }
 
             if(_bt.MemoryManager.LocalMemory != null)
             {
-                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Unit Memory");
+                Color prevColor = GUI.color;
+                GUI.color = Color.green;
+                GUI.Label (new Rect ((float)xOffset, (float)yOffset, kLabelWidth, kButtonHeight), "Local Memory");
+                GUI.color = prevColor;
                 RenderMemoryVariables(xOffset, ref yOffset, _bt.MemoryManager.LocalMemory.Map);
                 
                 yOffset += 20;

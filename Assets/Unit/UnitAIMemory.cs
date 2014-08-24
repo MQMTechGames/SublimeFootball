@@ -102,5 +102,5 @@ public static class UnitAIMemory
     public static AIMemoryKey ZoneType = new AIMemoryKey("ZoneType");
 
     // Test
-    public static AIMemoryKey AttackSpeed = new AIMemoryKey("AttackSpeed");
+    public static AIMemoryKey AttackSpeed = new AIMemoryKey("AttackSpeed", AIMemoryKey.ContextType.Local);
 }

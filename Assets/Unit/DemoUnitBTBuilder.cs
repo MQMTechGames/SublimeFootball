@@ -277,34 +277,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(waitWhileBallIsComingTillIsClose));
             tryToReactToBallPassMessage.AddChild(new Succeder().SetChild(new RemoveKnowledgeIfNotNew(UnitAIMemory.OnBallPassed)));
 
-        // Try to Move To A Passing Position
-        Sequence tryMovingToAPassingPosition = new Sequence();
-            tryMovingToAPassingPosition.AddChild(checkOnBallShotIsNullOrInvalid);
-            tryMovingToAPassingPosition.AddChild(findTargetDirection);
-            tryMovingToAPassingPosition.AddChild(moveToTargetDirection);
-
-        // Checl On Ball Passed Notificaton is not valid
-        Selector checkOnBallPassedIsDoneOrNullOrInvalid = new Selector();
-            checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckNullMemoryVar(UnitAIMemory.OnBallPassed));
-            checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckKnowledgeStatus(UnitAIMemory.OnBallPassed, KnowledgeStatus.DONE));
-            checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new Inverter().SetChild(checkBallIsMoving));
-
-        Sequence tryToRecoverTheBallWhenAttacking = new Sequence();
-            tryToRecoverTheBallWhenAttacking.AddChild(checkOnBallPassedIsDoneOrNullOrInvalid);
-            tryToRecoverTheBallWhenAttacking.AddChild(checkOnBallShotIsNullOrInvalid);
-            tryToRecoverTheBallWhenAttacking.AddChild(recoverTheBall);
-            
-        // Choose Attack without Ball
-        Selector chooseAttackWithoutBall = new Selector();
-            chooseAttackWithoutBall.AddChild(tryToReactToBallPassMessage);
-            chooseAttackWithoutBall.AddChild(tryToRecoverTheBallWhenAttacking);
-            chooseAttackWithoutBall.AddChild(tryMovingToAPassingPosition);
-
-        // Attack without ball controlled
-        Sequence tryToAttackWithoutBall = new Sequence();
-            tryToAttackWithoutBall.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar)));
-            tryToAttackWithoutBall.AddChild(chooseAttackWithoutBall);
-
         //-- Move with Ball Step
         #region MoveWithBall
         Sequence moveWithBallStep =  new Sequence();
@@ -487,7 +459,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         Selector chooseAttack = new Selector();
             chooseAttack.AddChild(tryToAttackWithBall);
             //chooseAttack.AddChild(tryToAttackWithoutBall);
-            chooseAttack.AddChild(new SubtreeAttackWithoutBallBehavior(UnitAIMemory.AttackSpeed, UnitAIMemory.AttackSpeed));
+            chooseAttack.AddChild(new AttackWithoutBallBehavior(UnitAIMemory.AttackSpeed, UnitAIMemory.AttackSpeed));
 
         Sequence tryToAttack = new Sequence();
             tryToAttack.AddChild(new CheckAreEqualMemoryVars<BaseSquad>(UnitAIMemory.g_PossessionSquad, UnitAIMemory.Squad));
@@ -534,7 +506,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
         _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);
 
-        _bt.SetMemoryObject(UnitAIMemory.AttackSpeed, 6f);
+        _bt.SetMemoryObject(UnitAIMemory.AttackSpeed, 666f);
         
         _bt.Init(mainAI);
         return _bt;
