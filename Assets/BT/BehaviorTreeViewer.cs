@@ -21,7 +21,13 @@ namespace MQMTech.AI.BT
         string[] _btreesNames;
         int _btreesIndex;
 
+        BehaviorTree _prevBT;
     	BehaviorTree _bt;
+
+        List<BehaviorTree> _children = new List<BehaviorTree>();
+        List<string> _childrenNames;
+        int _childrenIdx;
+        List<BehaviorTree> _behaviorStack = new List<BehaviorTree>();
 
         Vector2 windowsSize = Vector2.zero;
     	
@@ -38,7 +44,8 @@ namespace MQMTech.AI.BT
                 scrollPos, 
                 new Rect (0, 0, 15000, 15000)
                 );
-            
+
+            _prevBT = _bt;
             _bt = null;
 
             bool found = FillBTreeDropDownListFromSelectedGO();
@@ -49,11 +56,101 @@ namespace MQMTech.AI.BT
 
     		if(_bt != null)
     		{
-                windowsSize = RenderBehaviorTree(_bt);
+                if(_prevBT != _bt)
+                {
+                    InitBehaviorStack(_bt);
+                }
+
+                RenderStackOptions();
+
+                BehaviorTree currentBt = _behaviorStack[_behaviorStack.Count -1];
+
+                InitSubtreeArrays();
+
+                FindSubtrees(currentBt.RootBehavior);
+
+                AddSelectedChildrenIfNotNullToStack();
+
+                windowsSize = RenderBehaviorTree(currentBt);
     		}
 
             GUI.EndScrollView ();
     	}
+
+        void InitSubtreeArrays()
+        {
+            _childrenNames.Clear();
+            _childrenNames.Add("Select a Subtree");
+            
+            _children.Clear();
+            _children.Add(null);
+        }
+
+        void FindSubtrees(Behavior behavior)
+        {
+            DebugUtils.Assert(behavior != null);
+
+            if(behavior is SubtreeBehavior)
+            {
+                BehaviorTree subtree = ((SubtreeBehavior) behavior).Subtree;
+                if(subtree != null)
+                {
+                    _children.Add(subtree);
+                    _childrenNames.Add(subtree.GetType().Name);
+                }
+            }
+
+            List<Behavior> children = behavior.GetChildren();
+            if(children == null)
+            {
+                return;
+            }
+
+            foreach (Behavior child in children)
+            {
+                FindSubtrees(child);
+            }
+        }
+
+        void InitBehaviorStack(BehaviorTree bt)
+        {
+            _behaviorStack.Clear();
+
+            _behaviorStack.Add(bt);
+        }
+
+        void RenderStackOptions()
+        {
+            int xOffset = 480;
+            int yOffset = 60;
+
+            if(_behaviorStack.Count > 1)
+            {
+                if(GUI.Button(new Rect(xOffset, yOffset, 100, 50), "Go to parent Tree"))
+                {
+                    _behaviorStack.RemoveAt(_behaviorStack.Count -1);
+                }
+            }
+            else
+            {
+                GUI.Button(new Rect(xOffset, yOffset, 100, 50), " - ");
+            }
+        }
+
+        void AddSelectedChildrenIfNotNullToStack()
+        {
+            _childrenIdx = EditorGUILayout.Popup(_childrenIdx, _childrenNames.ToArray());
+            if(_childrenIdx > 0)
+            {
+                BehaviorTree bt = _children[_childrenIdx];
+                if(bt != null)
+                {
+                    _behaviorStack.Add(bt);
+                }
+            }
+
+            _childrenIdx = 0;
+        }
 
         void RenderBehaviorTreeSelector()
         {

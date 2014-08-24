@@ -6,6 +6,8 @@ public class SubtreeBehavior : Behavior
     BehaviorTree _subtree;
     Behavior _subTreeRootBehavior;
 
+    public BehaviorTree Subtree { get { return _subtree; } }
+
     protected AIMemoryKeyPair[] _inputs;
     protected AIMemoryKeyPair[] _outputs;
 
@@ -37,8 +39,8 @@ public class SubtreeBehavior : Behavior
 //        _subtree.SetAgentMemory(_bt.GetAgentMemory());
 //        DebugUtils.Assert(_subtree.GetAgentMemory() != null);
 
-        _subtree.SetSharedMemory(_bt.GetSharedMemory());
-        DebugUtils.Assert(_subtree.GetSharedMemory() != null);
+//        _subtree.SetSharedMemory(_bt.GetSharedMemory());
+//        DebugUtils.Assert(_subtree.GetSharedMemory() != null);
 
         _subtree.SetGlobalMemory(_bt.GetGlobalMemory());
         DebugUtils.Assert(_subtree.GetGlobalMemory() != null);
@@ -52,6 +54,9 @@ public class SubtreeBehavior : Behavior
         {
             _subtree.SetAgentMemory(_bt.GetAgentMemory());
             DebugUtils.Assert(_subtree.GetAgentMemory() != null);
+
+            _subtree.SetSharedMemory(_bt.GetSharedMemory());
+            DebugUtils.Assert(_subtree.GetSharedMemory() != null);
 
             DebugUtils.Assert(_subtree.GetAgentMemory() == _bt.GetAgentMemory(), "Error, agent memory is not equal");
             DebugUtils.Assert(_subtree.GetSharedMemory() == _bt.GetSharedMemory());
