@@ -5,6 +5,8 @@ namespace MQMTech.AI.BT
 {
     public class BehaviorTree
     {
+        public string Name { get; private set; }
+
     	Behavior _root;
         public Behavior RootBehavior { get { return _root; } }
     	Behavior.Status _status;
@@ -12,8 +14,10 @@ namespace MQMTech.AI.BT
         MemoryManager _memoryManager;
         public MemoryManager MemoryManager { get{ return _memoryManager; }}
 
-        public BehaviorTree()
+        public BehaviorTree(string name)
         {
+            Name = name;
+
             _memoryManager = new MemoryManager();
             _memoryManager.LocalMemory = new Memory();
         }

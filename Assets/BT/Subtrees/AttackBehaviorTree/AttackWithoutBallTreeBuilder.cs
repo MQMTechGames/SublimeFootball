@@ -6,7 +6,7 @@ using MQMTech.AI.Mover.Action;
 using MQMTech.AI.Knowledge;
 
 [System.Serializable]
-public class AttackWithoutBallTreeBuilder : MonoBehaviour, IBehaviorWithTree
+public class AttackWithoutBallTreeBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTreeBuilder
 {
     BehaviorTree _bt;
     
@@ -216,6 +216,7 @@ public class AttackWithoutBallTreeBuilder : MonoBehaviour, IBehaviorWithTree
         Selector checkOnBallPassedIsDoneOrNullOrInvalid = new Selector();
             checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckNullMemoryVar(UnitAIMemory.OnBallPassed));
             checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckKnowledgeStatus(UnitAIMemory.OnBallPassed, KnowledgeStatus.DONE));
+            //checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new CheckAIMessageIsValidOrRemove(UnitAIMemory.OnBallPassed, 3f));
             checkOnBallPassedIsDoneOrNullOrInvalid.AddChild(new Inverter().SetChild(checkBallIsMoving));
         
         Sequence tryToRecoverTheBallWhenAttacking = new Sequence();
@@ -234,7 +235,7 @@ public class AttackWithoutBallTreeBuilder : MonoBehaviour, IBehaviorWithTree
             tryToAttackWithoutBall.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar)));
             tryToAttackWithoutBall.AddChild(chooseAttackWithoutBall);
 
-        _bt = new BehaviorTree();
+        _bt = new BehaviorTree("AttackWithoutBall");
 
         _bt.Init(tryToAttackWithoutBall);
 

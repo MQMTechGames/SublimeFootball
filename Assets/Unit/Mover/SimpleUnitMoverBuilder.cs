@@ -68,7 +68,7 @@ public class SimpleUnitMoverBuilder : MonoBehaviour, IBehaviorWithTree
         mainAI.AddChild(tryToMoveByCommand);
         mainAI.AddChild(tryToFaceToCommand);
 
-        _bt = new BehaviorTree();
+        _bt = new BehaviorTree("UnitMover");
         _bt.SetMemoryObject(UnitAIMemory.Mover, _mover);
 
         _bt.Init(mainAI);

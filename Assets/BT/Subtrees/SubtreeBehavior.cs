@@ -17,33 +17,37 @@ public class SubtreeBehavior : Behavior
     {
         base.OnInitialize();
 
-        InitSubtree();
-
-        if(_subTreeRootBehavior != null)
+        if(_subTreeRootBehavior == null)
         {
-            ApplyInputParameters();
-
-            _subTreeRootBehavior.OnReset();
+            InitSubtree();
         }
+
+        ApplyInputParameters();
+        _subTreeRootBehavior.OnReset();
     }
 
     void InitSubtree()
     {
         _inputs = null;
         _outputs = null;
-        
-        _subtree = BehaviorTreeManager.FindBehaviorTree(_subtreeName);
-        DebugUtils.Assert(_subtree!=null, "subtree: " + _subtreeName + " not found");
-        _subTreeRootBehavior = _subtree.GetRootBehavior();
-        
-//        _subtree.SetAgentMemory(_bt.GetAgentMemory());
-//        DebugUtils.Assert(_subtree.GetAgentMemory() != null);
 
-//        _subtree.SetSharedMemory(_bt.GetSharedMemory());
-//        DebugUtils.Assert(_subtree.GetSharedMemory() != null);
+        IBehaviorTreeBuilder builder = BehaviorTreeManager.FindBuilder(_subtreeName);
+        DebugUtils.Assert(builder!=null, "builder!=null");
+
+        _subtree = builder.Create();
+        DebugUtils.Assert(_subtree!=null, "_subtree!=null");
+        
+        _subtree.SetAgentMemory(_bt.GetAgentMemory());
+        DebugUtils.Assert(_subtree.GetAgentMemory() != null);
+
+        _subtree.SetSharedMemory(_bt.GetSharedMemory());
+        DebugUtils.Assert(_subtree.GetSharedMemory() != null);
 
         _subtree.SetGlobalMemory(_bt.GetGlobalMemory());
         DebugUtils.Assert(_subtree.GetGlobalMemory() != null);
+
+        _subTreeRootBehavior = _subtree.GetRootBehavior();
+        DebugUtils.Assert(_subTreeRootBehavior!=null, "_subTreeRootBehavior!=null");
     }
 
     public override Status Update()
@@ -52,12 +56,6 @@ public class SubtreeBehavior : Behavior
 
         if(_subTreeRootBehavior != null)
         {
-            _subtree.SetAgentMemory(_bt.GetAgentMemory());
-            DebugUtils.Assert(_subtree.GetAgentMemory() != null);
-
-            _subtree.SetSharedMemory(_bt.GetSharedMemory());
-            DebugUtils.Assert(_subtree.GetSharedMemory() != null);
-
             DebugUtils.Assert(_subtree.GetAgentMemory() == _bt.GetAgentMemory(), "Error, agent memory is not equal");
             DebugUtils.Assert(_subtree.GetSharedMemory() == _bt.GetSharedMemory());
             DebugUtils.Assert(_subtree.GetGlobalMemory() == _bt.GetGlobalMemory());

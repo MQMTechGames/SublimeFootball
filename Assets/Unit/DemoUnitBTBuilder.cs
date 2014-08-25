@@ -6,7 +6,7 @@ using MQMTech.AI.Mover.Action;
 using MQMTech.AI.Knowledge;
 
 [System.Serializable]
-public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
+public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTreeBuilder
 {
     BaseUnit _unit;
     BehaviorTree _bt;
@@ -458,7 +458,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         // Choose attack type
         Selector chooseAttack = new Selector();
             chooseAttack.AddChild(tryToAttackWithBall);
-            //chooseAttack.AddChild(tryToAttackWithoutBall);
             chooseAttack.AddChild(new AttackWithoutBallBehavior(UnitAIMemory.AttackSpeed, UnitAIMemory.AttackSpeed));
 
         Sequence tryToAttack = new Sequence();
@@ -491,7 +490,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
             AI.AddChild(tryToReactOnSmash);
             AI.AddChild(mainAI);
 
-        _bt = new BehaviorTree();
+        _bt = new BehaviorTree("Unit");
 
         _bt.SetAgentMemory(new Memory());
         _bt.SetSharedMemory(_squadMemory.Memory);
@@ -506,7 +505,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree
         _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
         _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);
 
-        _bt.SetMemoryObject(UnitAIMemory.AttackSpeed, 666f);
+        _bt.SetMemoryObject(UnitAIMemory.AttackSpeed, 666f); // to test subtree behaviors
         
         _bt.Init(mainAI);
         return _bt;
