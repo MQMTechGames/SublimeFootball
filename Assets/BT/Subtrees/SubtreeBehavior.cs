@@ -1,66 +1,105 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using MQMTech.AI.BT;
 
 public class SubtreeBehavior : Behavior
 {
-    BehaviorTree _subtree;
-    Behavior _subTreeRootBehavior;
+    private BehaviorTree _subtree;
+    private Behavior _subtreeBehavior;
+    private TreeLinkConfiguration _linkConfiguration;
 
     public BehaviorTree Subtree { get { return _subtree; } }
 
-    protected AIMemoryKeyPair[] _inputs;
-    protected AIMemoryKeyPair[] _outputs;
+    SubTreeParameters _parameters = new SubTreeParameters();
 
     protected string _subtreeName;
+    public string SubtreeName { get { return _subtreeName; } }
+
+    public SubtreeBehavior(string subtreeName)
+    {
+        _subtreeName = subtreeName;
+    }
+
+    public void AddInputParameter(AIMemoryKeyPair pair)
+    {
+        _parameters.AddInputParameter(pair);
+    }
+
+    public void AddOutputParameter(AIMemoryKeyPair pair)
+    {
+        _parameters.AddOutputParameter(pair);
+    }
 
     public override void OnInitialize()
     {
         base.OnInitialize();
 
-        if(_subTreeRootBehavior == null)
+        if(_subtreeBehavior == null)
         {
             InitSubtree();
         }
 
+        _subtreeBehavior.OnReset();
+
         ApplyInputParameters();
-        _subTreeRootBehavior.OnReset();
+    }
+
+    void ApplyInputParameters()
+    {
+        if(_parameters.Inputs == null)
+        {
+            return;
+        }
+        
+        for (int i = 0; i < _parameters.Inputs.Count; ++i)
+        {
+            System.Object obj;
+            _bt.GetMemoryObject<System.Object>(_parameters.Inputs[i].Source, out obj);
+            
+            _subtree.SetMemoryObject(_parameters.Inputs[i].Target, obj);
+        }
+    }
+    
+    void ApplyOutputParameters()
+    {
+        if(_parameters.Outputs == null)
+        {
+            return;
+        }
+        
+        for (int i = 0; i < _parameters.Inputs.Count; ++i)
+        {
+            System.Object obj;
+            _subtree.GetMemoryObject<System.Object>(_parameters.Outputs[i].Source, out obj);
+            
+            _bt.SetMemoryObject(_parameters.Outputs[i].Target, obj);
+        }
     }
 
     void InitSubtree()
     {
-        _inputs = null;
-        _outputs = null;
-
-        IBehaviorTreeBuilder builder = BehaviorTreeManager.FindBuilder(_subtreeName);
-        DebugUtils.Assert(builder!=null, "builder!=null");
-
-        _subtree = builder.Create();
+        _subtree = BehaviorTreeManager.FindSubTree(_subtreeName);
         DebugUtils.Assert(_subtree!=null, "_subtree!=null");
-        
-        _subtree.SetAgentMemory(_bt.GetAgentMemory());
-        DebugUtils.Assert(_subtree.GetAgentMemory() != null);
 
-        _subtree.SetSharedMemory(_bt.GetSharedMemory());
-        DebugUtils.Assert(_subtree.GetSharedMemory() != null);
+        bool isOk = BehaviorTreeManager.FindSubTreeConfiguration(_subtreeName, out _linkConfiguration);
+        DebugUtils.Assert(isOk, "linkConfiguration is not found");
 
-        _subtree.SetGlobalMemory(_bt.GetGlobalMemory());
-        DebugUtils.Assert(_subtree.GetGlobalMemory() != null);
+        _linkConfiguration.ConfigureTreeMemory(_subtree, _bt);
+        _linkConfiguration.CheckAllSubtreeMemory(_subtree, _bt);
 
-        _subTreeRootBehavior = _subtree.GetRootBehavior();
-        DebugUtils.Assert(_subTreeRootBehavior!=null, "_subTreeRootBehavior!=null");
+        _subtreeBehavior = _subtree.GetRootBehavior();
+        DebugUtils.Assert(_subtreeBehavior!=null, "_subTreeRootBehavior!=null");
     }
 
     public override Status Update()
     {
         Status status = Status.INVALID;
 
-        if(_subTreeRootBehavior != null)
+        if(_subtreeBehavior != null)
         {
-            DebugUtils.Assert(_subtree.GetAgentMemory() == _bt.GetAgentMemory(), "Error, agent memory is not equal");
-            DebugUtils.Assert(_subtree.GetSharedMemory() == _bt.GetSharedMemory());
-            DebugUtils.Assert(_subtree.GetGlobalMemory() == _bt.GetGlobalMemory());
+            _linkConfiguration.CheckAllSubtreeMemory(_subtree, _bt);
 
-            status = _subTreeRootBehavior.Tick();
+            status = _subtreeBehavior.Tick();
         }
 
         return status;
@@ -70,41 +109,9 @@ public class SubtreeBehavior : Behavior
     {
         base.OnTerminate();
 
-        if(_subTreeRootBehavior != null)
+        if(_subtreeBehavior != null)
         {
             ApplyOutputParameters();
-        }
-    }
-
-    void ApplyInputParameters()
-    {
-        if(_inputs == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _inputs.Length; ++i)
-        {
-            System.Object obj;
-            _bt.GetMemoryObject<System.Object>(_inputs[0].Source, out obj);
-
-            _subtree.SetMemoryObject(_inputs[0].Target, obj);
-        }
-    }
-    
-    void ApplyOutputParameters()
-    {
-        if(_outputs == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _inputs.Length; ++i)
-        {
-            System.Object obj;
-            _subtree.GetMemoryObject<System.Object>(_outputs[0].Source, out obj);
-            
-            _bt.SetMemoryObject(_outputs[0].Target, obj);
         }
     }
 }

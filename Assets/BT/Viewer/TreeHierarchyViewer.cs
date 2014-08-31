@@ -8,39 +8,26 @@ namespace MQMTech.AI.BT
     {
         const int kYMargin = 10;
 
-        public BehaviorTree RootTree { get; set; }
-
         int _xPosition;
         public int XPosition { get { return _xPosition; } private set { _xPosition = value; } }
 
         int _yPosition;
         public int YPosition { get { return _yPosition; } private set { _yPosition = value; } }
 
-        List<BehaviorTree> _children = new List<BehaviorTree>();
-        List<string> _childrenNames = new List<string>();
-        int _childrenIdx;
-        List<BehaviorTree> _behaviorStack = new List<BehaviorTree>();
+        TreeHierarchyModel _hierarchyModel;
 
-        public BehaviorTree TopStackTree 
-        { 
-            get 
-            {
-                if(_behaviorStack.Count > 0)
-                {
-                    return _behaviorStack[_behaviorStack.Count -1];
-                }
-
-                return null;
-            }
+        public TreeHierarchyViewer(TreeHierarchyModel model)
+        {
+            _hierarchyModel = model;
         }
 
         public void Init(BehaviorTree tree)
         {
-            RootTree = tree;
+            _hierarchyModel.RootTree = tree;
 
-            _behaviorStack.Clear();
+            _hierarchyModel.BehaviorsStack.Clear();
             
-            _behaviorStack.Add(RootTree);
+            _hierarchyModel.BehaviorsStack.Add(_hierarchyModel.RootTree);
         }
 
         public void Render(int xPosition, int yPosition)
@@ -50,7 +37,7 @@ namespace MQMTech.AI.BT
 
             RenderStackOptions();
 
-            CleanAndFindChildrenFromTree(TopStackTree);
+            CleanAndFindChildrenFromTree(_hierarchyModel.TopStackTree);
             AddSelectedChildrenIfNotNullToStack();
         }
 
@@ -62,11 +49,11 @@ namespace MQMTech.AI.BT
 
         void InitSubtreeArrays()
         {
-            _childrenNames.Clear();
-            _childrenNames.Add("Select a Subtree");
+            _hierarchyModel.ChildrenNames.Clear();
+            _hierarchyModel.ChildrenNames.Add("Select a Subtree");
             
-            _children.Clear();
-            _children.Add(null);
+            _hierarchyModel.Children.Clear();
+            _hierarchyModel.Children.Add(null);
         }
 
         void FindSubtrees(Behavior behavior)
@@ -78,8 +65,8 @@ namespace MQMTech.AI.BT
                 BehaviorTree subtree = ((SubtreeBehavior) behavior).Subtree;
                 if(subtree != null)
                 {
-                    _children.Add(subtree);
-                    _childrenNames.Add(subtree.Name);
+                    _hierarchyModel.Children.Add(subtree);
+                    _hierarchyModel.ChildrenNames.Add(subtree.Name);
                 }
             }
             
@@ -110,11 +97,11 @@ namespace MQMTech.AI.BT
             GUI.EndGroup();
 
             GUI.BeginGroup(new Rect(XPosition, YPosition, 480, 60));
-            if(_behaviorStack.Count > 1)
+            if(_hierarchyModel.BehaviorsStack.Count > 1)
             {
-                for (int i = 0; i < _behaviorStack.Count; ++i) 
+                for (int i = 0; i < _hierarchyModel.BehaviorsStack.Count; ++i) 
                 {
-                    BehaviorTree tree = _behaviorStack[i];
+                    BehaviorTree tree = _hierarchyModel.BehaviorsStack[i];
                     if(GUI.Button(new Rect(xPosition, yPosition, 180, buttonHeight), tree.Name))
                     {
                         RemoveFromStackTill(tree);
@@ -122,7 +109,7 @@ namespace MQMTech.AI.BT
                     }
                     xPosition += 185;
 
-                    if(i < _behaviorStack.Count -1)
+                    if(i < _hierarchyModel.BehaviorsStack.Count -1)
                     {
                         GUI.Label(new Rect(xPosition, yPosition, 25, buttonHeight), "->");
                         xPosition += 30;
@@ -131,7 +118,7 @@ namespace MQMTech.AI.BT
             }
             else
             {
-                GUI.Button(new Rect(xPosition, yPosition, 180, buttonHeight), RootTree.Name);
+                GUI.Button(new Rect(xPosition, yPosition, 180, buttonHeight), _hierarchyModel.RootTree.Name);
             }
             
             YPosition += 25 + kYMargin;
@@ -142,23 +129,23 @@ namespace MQMTech.AI.BT
         void RemoveFromStackTill(BehaviorTree tree)
         {
             int idx = 0;
-            for (; idx < _behaviorStack.Count; ++idx)
+            for (; idx < _hierarchyModel.BehaviorsStack.Count; ++idx)
             {
-                if(_behaviorStack[idx] == tree)
+                if(_hierarchyModel.BehaviorsStack[idx] == tree)
                 {
                     break;
                 }
             }
 
             List<BehaviorTree> treesToRemove = new List<BehaviorTree>();
-            for (int i = idx +1; i < _behaviorStack.Count; i++)
+            for (int i = idx +1; i < _hierarchyModel.BehaviorsStack.Count; i++)
             {
-                treesToRemove.Add(_behaviorStack[i]);
+                treesToRemove.Add(_hierarchyModel.BehaviorsStack[i]);
             }
 
             for (int i = 0; i < treesToRemove.Count; i++)
             {
-                _behaviorStack.Remove(treesToRemove[i]);
+                _hierarchyModel.BehaviorsStack.Remove(treesToRemove[i]);
             }
         }
 
@@ -174,20 +161,17 @@ namespace MQMTech.AI.BT
             GUI.EndGroup();
 
             GUI.BeginGroup(new Rect(XPosition, YPosition, Screen.width, 60));
-            _childrenIdx = EditorGUILayout.Popup(_childrenIdx, _childrenNames.ToArray(), GUILayout.Width (248) );
-            if(_childrenIdx > 0)
+            _hierarchyModel.ChildrenIdx = EditorGUILayout.Popup(_hierarchyModel.ChildrenIdx, _hierarchyModel.ChildrenNames.ToArray(), GUILayout.Width (248) );
+            if(_hierarchyModel.ChildrenIdx > 0)
             {
-                BehaviorTree bt = _children[_childrenIdx];
-                if(bt != null)
-                {
-                    _behaviorStack.Add(bt);
-                }
+                BehaviorTree bt = _hierarchyModel.Children[_hierarchyModel.ChildrenIdx];
+                _hierarchyModel.PushTree(bt);
             }
             GUI.EndGroup();
 
             YPosition += 25 + kYMargin;
             
-            _childrenIdx = 0;
+            _hierarchyModel.ChildrenIdx = 0;
         }
     }
 }

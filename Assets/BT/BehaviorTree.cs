@@ -19,7 +19,7 @@ namespace MQMTech.AI.BT
             Name = name;
 
             _memoryManager = new MemoryManager();
-            _memoryManager.LocalMemory = new Memory();
+//            _memoryManager.LocalMemory = new Memory();
         }
 
         public void SetAgentMemory(Memory memory)

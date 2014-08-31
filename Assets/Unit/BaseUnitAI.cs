@@ -4,17 +4,31 @@ using MQMTech.AI.Knowledge;
 
 namespace MQMTech.AI
 {
-    public class BaseUnitAI : MonoBehaviour
+    public class BaseUnitAI : MonoBehaviour, IBehaviorWithTree
     {
         [SerializeField]
-        DemoUnitBTBuilder btBuilder;
+        SharedMemory squadMemory;
+
+        [SerializeField]
+        SharedMemory matchMemory;
+
+        BaseUnit _unit;
 
         BehaviorTree _bt;
 
         void Start()
         {
-            _bt = btBuilder.Create();
+            _unit = gameObject.GetComponent<BaseUnit>();
+            DebugUtils.Assert(_unit!=null, "[BaseUnitAI] _unit!=null");
+
+            FootballerTreeParameters parameters = new FootballerTreeParameters(_unit, _unit.Squad);
+            _bt = BehaviorTreeManager.CreateTreeInstance(BehaviortreeNames.Footballer, new Memory(), new Memory(), squadMemory.Memory, matchMemory.Memory, parameters);
             DebugUtils.Assert(_bt!=null, "[BaseUnitAI] bt!=null");
+        }
+
+        public BehaviorTree GetBehaviorTree()
+        {
+            return _bt;
         }
 
         public void SendAIMessage<T>(string messageName, T message)

@@ -23,6 +23,12 @@ namespace MQMTech.AI.BT
         const int kLabelWidth = 250;
         const int kLabelHeight = 20;
 
+        TreeHierarchyModel _treeHierarchyModel;
+        public TreeViewer(TreeHierarchyModel model)
+        {
+            _treeHierarchyModel = model;
+        }
+
         public void Render(BehaviorTree bt, int xPosition, int yPosition)
         {
             _bt = bt;
@@ -58,9 +64,9 @@ namespace MQMTech.AI.BT
             {
                 status = behavior.BehaviorStatus;
             }
-            RenderNode(name, status, xPosition, yPosition);
+            Vector2 size = RenderNode(behavior, name, status, xPosition, yPosition);
             
-            yPosition += kButtonHeight + kYOffsetSeparation;
+            yPosition += ((int)size.y) + kYOffsetSeparation;
             xPosition += kXOffsetSeparation;
             
             List<Behavior> children = behavior.GetChildren();
@@ -68,7 +74,7 @@ namespace MQMTech.AI.BT
             {
                 return;
             }
-            
+
             foreach (Behavior child in children) 
             {
                 Handles.BeginGUI();
@@ -78,20 +84,61 @@ namespace MQMTech.AI.BT
                 
                 Handles.DrawLine( 
                                  new Vector3(behaviorXposition, yPosition + kButtonHeight / 2, 0f),
-                                 new Vector3(xPosition, yPosition + kButtonHeight / 2, 0f));
+                                 new Vector3(xPosition, yPosition + kButtonHeight / 2, 0f));  
                 Handles.EndGUI();
                 
                 RenderBehavior(child, xPosition, ref yPosition, status);
             }
         }
 
-        void RenderNode(string name, Behavior.Status status, int xOffset, int yOffset)
+        Vector2 RenderNode(Behavior behavior, string name, Behavior.Status status, int xOffset, int yOffset)
         {
             Color color = GetColorFromStatus(status);
             GUI.backgroundColor = color;
             GUI.contentColor = Color.white;
-            
-            GUI.Button (new Rect ((float) xOffset, (float) yOffset, kButtonWidth, kButtonHeight), name);
+         
+            int maxWidth = kButtonWidth;
+            int maxHeight = kButtonHeight;
+
+            bool isSubtree = false;
+
+            if(behavior is SubtreeBehavior)
+            {
+                int extraWidth = 6;
+                int extraHeight = 6;
+
+                int BoxXOffset = xOffset - extraWidth;
+                int BoxYOffset = yOffset;
+
+                int BoxWidth = kButtonWidth + 2*extraWidth;
+                int BoxHeight = kButtonHeight + 2*extraHeight;
+
+                maxWidth = BoxWidth;
+                maxHeight = BoxHeight;
+
+                GUI.backgroundColor = Color.white;
+                if( GUI.Button(new Rect ((float) BoxXOffset, (float) BoxYOffset, BoxWidth, BoxHeight), ""))
+                {
+                    _treeHierarchyModel.PushTree(((SubtreeBehavior)behavior).Subtree);
+                }
+
+                GUI.backgroundColor = color;
+
+                yOffset += extraHeight;
+
+                name = ((SubtreeBehavior) behavior).SubtreeName;
+                isSubtree = true;
+            }
+
+            if ( GUI.Button (new Rect ((float) xOffset, (float) yOffset, kButtonWidth, kButtonHeight), name) )
+            {
+                if(isSubtree)
+                {
+                    _treeHierarchyModel.PushTree(((SubtreeBehavior)behavior).Subtree);
+                }
+            }
+
+            return new Vector2(maxWidth, maxHeight);
         }
         
         Color GetColorFromStatus(Behavior.Status status)

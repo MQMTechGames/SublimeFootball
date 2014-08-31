@@ -9,10 +9,12 @@ namespace MQMTech.AI.BT
         const int kYMargin = 20;
         const int kRightMargin = 20;
 
-        BehaviorFinderViewer _behaviorFinderViewer = new BehaviorFinderViewer();
-        TreeViewer _viewer = new TreeViewer();
-        MemoryViewer _memoryViewer = new MemoryViewer();
-        TreeHierarchyViewer _treeHierarchyViewer = new TreeHierarchyViewer();
+        TreeViewerModel _treeViewerModel = new TreeViewerModel();
+
+        BehaviorFinderViewer _behaviorFinderViewer;
+        TreeHierarchyViewer _treeHierarchyViewer;
+        TreeViewer _viewer;
+        MemoryViewer _memoryViewer;
 
         Vector2 _treeViewerScroll;
         Vector2 _memoryViewerScroll;
@@ -28,6 +30,14 @@ namespace MQMTech.AI.BT
 
         int _memoryViewerYSize;
         int _memoryViewerXSize;
+
+        public BehaviorTreeViewer()
+        {
+            _behaviorFinderViewer = new BehaviorFinderViewer(_treeViewerModel.AvailableTreesModel);
+            _treeHierarchyViewer = new TreeHierarchyViewer(_treeViewerModel.TreeHierarchyModel);
+            _viewer = new TreeViewer(_treeViewerModel.TreeHierarchyModel);
+            _memoryViewer = new MemoryViewer();
+        }
 
     	[MenuItem ("Window/BehaviorTreeViewer")]
     	static void Init () 
@@ -52,11 +62,11 @@ namespace MQMTech.AI.BT
             _behaviorFinderViewer.Render(_xPosition, _yPosition);
             _yPosition += 40;
 
-            if(_behaviorFinderViewer.Tree != null)
+            if(_treeViewerModel.AvailableTreesModel.RootTree != null)
     		{
-                if(_treeHierarchyViewer.RootTree != _behaviorFinderViewer.Tree)
+                if(_treeViewerModel.TreeHierarchyModel.RootTree != _treeViewerModel.AvailableTreesModel.RootTree)
                 {
-                    _treeHierarchyViewer.Init(_behaviorFinderViewer.Tree);
+                    _treeHierarchyViewer.Init(_treeViewerModel.AvailableTreesModel.RootTree);
                 }
 
                 _treeHierarchyViewer.Render(_xPosition, _yPosition);
@@ -69,7 +79,7 @@ namespace MQMTech.AI.BT
                     new Rect (0, 0, 15000, 15000)
                     );
 
-                _viewer.Render(_treeHierarchyViewer.TopStackTree, 0, 0);
+                _viewer.Render(_treeViewerModel.SelectedBehaviorTree, 0, 0);
                 _yPosition += _treeViewerYSize + kYMargin;
 
                 GUI.EndScrollView ();
@@ -81,7 +91,7 @@ namespace MQMTech.AI.BT
                     _memoryViewerScroll, 
                     new Rect (0, 0, 15000, 15000)
                     );
-                _memoryViewer.Render(_treeHierarchyViewer.TopStackTree, 0, 0);
+                _memoryViewer.Render(_treeViewerModel.SelectedBehaviorTree, 0, 0);
                 GUI.EndScrollView ();
                 GUI.EndGroup ();
     		}

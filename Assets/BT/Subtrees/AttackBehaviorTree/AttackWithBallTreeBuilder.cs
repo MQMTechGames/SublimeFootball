@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 using MQMTech.AI.BT;
 using MQMTech.AI.Knowledge.Action;
@@ -6,25 +6,9 @@ using MQMTech.AI.Mover.Action;
 using MQMTech.AI.Knowledge;
 
 [System.Serializable]
-public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTreeBuilder
+public class AttackWithBallTreeBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTreeBuilder
 {
-    BaseUnit _unit;
     BehaviorTree _bt;
-    Match _match;
-
-    [SerializeField]
-    SharedMemory _squadMemory;
-
-    [SerializeField]
-    SharedMemory _matchMemory;
-
-    void Awake()
-    {
-        _unit = GameObjectUtils.GetInterfaceObject<BaseUnit>(gameObject);
-
-        _match = FindObjectOfType<Match>();
-        DebugUtils.Assert(_match!=null, "_match!=null");
-    }
     
     public BehaviorTree GetBehaviorTree()
     {
@@ -33,8 +17,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTree
     
     public BehaviorTree Create()
     {
-        Selector mainAI = new Selector();
-
 //-- Find forward direction
         Sequence findTargetDirection = new Sequence();
             findTargetDirection.AddChild(new FindGoal(UnitAIMemory.Unit, UnitAIMemory.Goal));
@@ -204,6 +186,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTree
             recoverTheBall.AddChild(new Succeder().SetChild(tryToClearCoolDownIfPasserIsNotUnit));
             recoverTheBall.AddChild(coolDownForRecoverPossession);
 
+        #region PassTheBall
         Sequence passBallToSelectedMateUnit = new Sequence();
             passBallToSelectedMateUnit.AddChild(new SaveTransformFromComponent<BaseUnit>(UnitAIMemory.SelectedMateUnit, UnitAIMemory.SelectedMateTransform));
             passBallToSelectedMateUnit.AddChild(new FaceUnitToTransform(UnitAIMemory.Unit, UnitAIMemory.SelectedMateTransform));
@@ -214,7 +197,6 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTree
             passBallToSelectedMateUnit.AddChild(new PassBallToPosition(UnitAIMemory.Unit, UnitAIMemory.Ball, UnitAIMemory.BallEndPosition, UnitAIMemory.BallMaxHeight));
             passBallToSelectedMateUnit.AddChild(new CopyMemoryVar(UnitAIMemory.Unit, UnitAIMemory.BallPasserUnit));
 
-        //-- Pass The Ball Subtree
         Sequence easyBallPass = new Sequence();
             easyBallPass.AddChild(new SelectEasiestUnitToPassTheBall(UnitAIMemory.Unit, UnitAIMemory.SelectedMateUnit));
             easyBallPass.AddChild(passBallToSelectedMateUnit);
@@ -258,6 +240,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTree
             //tryToPassTheBall.AddChild(rightPass);
             //tryToPassTheBall.AddChild(randomBallPass);
             tryToPassTheBall.AddChild(unsetBallControlled);
+        #endregion PassTheBall
 
         //-- Prepare to Receive the ball to point
         Sequence faceBall = new Sequence();
@@ -455,59 +438,10 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTree
             tryToAttackWithBall.AddChild(new CheckAreEqualMemoryVars<bool>(UnitAIMemory.IsBallControlled, UnitAIMemory.TrueVar));
             tryToAttackWithBall.AddChild(attackWithBall);
 
-        // Choose attack type
-        Selector chooseAttack = new Selector();
-            chooseAttack.AddChild(tryToAttackWithBall);
-            chooseAttack.AddChild(new AttackWithoutBallBehavior(UnitAIMemory.AttackSpeed, UnitAIMemory.AttackSpeed));
+        _bt = new BehaviorTree(BehaviortreeNames.AttackWithall);
 
-        Sequence tryToAttack = new Sequence();
-            tryToAttack.AddChild(new CheckAreEqualMemoryVars<BaseSquad>(UnitAIMemory.g_PossessionSquad, UnitAIMemory.Squad));
-                tryToAttack.AddChild(chooseAttack);
+        _bt.Init(tryToAttackWithBall);
 
-        Sequence tryToRecoverTheBallWithoutPossession = new Sequence();
-            tryToRecoverTheBallWithoutPossession.AddChild(checkOnBallShotIsNullOrInvalid);
-            tryToRecoverTheBallWithoutPossession.AddChild(recoverTheBall);
-
-        Sequence tryToRecoverPosession = new Sequence();
-            tryToRecoverPosession.AddChild(new CheckNullMemoryVar(UnitAIMemory.g_PossessionSquad));
-            tryToRecoverPosession.AddChild(tryToRecoverTheBallWithoutPossession);
-
-            // Main AIs subtypes
-            mainAI.AddChild(tryToAttack);
-            mainAI.AddChild(tryToDefend);
-            mainAI.AddChild(tryToRecoverPosession);
-
-        Sequence tryToReactOnSmash = new Sequence();
-            tryToReactOnSmash.AddChild(new CheckAIMessageIsValidOrRemove(UnitAIMemory.SmashedMessage, 1f));
-            tryToReactOnSmash.AddChild(new SetKnowledgeStatus(UnitAIMemory.SmashedMessage, KnowledgeStatus.PROCESSED));
-            tryToReactOnSmash.AddChild(new ProcessBeingSmashed(UnitAIMemory.Unit, UnitAIMemory.SmashedMessage));
-            tryToReactOnSmash.AddChild(new RemoveKnowledgeIfNotNew(UnitAIMemory.SmashedMessage));
-            tryToReactOnSmash.AddChild(unsetBallControlled);
-            tryToReactOnSmash.AddChild(unsetBallPosession);
-            tryToReactOnSmash.AddChild(new TimeWaiter(2f));
-
-        ActiveSelector AI = new ActiveSelector();
-            AI.AddChild(tryToReactOnSmash);
-            AI.AddChild(mainAI);
-
-        _bt = new BehaviorTree("Unit");
-
-        _bt.SetAgentMemory(new Memory());
-        _bt.SetSharedMemory(_squadMemory.Memory);
-        _bt.SetGlobalMemory(_matchMemory.Memory);
-
-        DebugUtils.Assert(_bt.MemoryManager.SharedMemory != null, "_bt.SharedMemory != null");
-
-        // Init variables
-        _bt.SetMemoryObject(UnitAIMemory.Unit, _unit);
-        _bt.SetMemoryObject(UnitAIMemory.Squad, _unit.Squad);
-        _bt.SetMemoryObject(UnitAIMemory.TrueVar, true);
-        _bt.SetMemoryObject(UnitAIMemory.FalseVar, false);
-        _bt.SetMemoryObject(UnitAIMemory.BallDistance, 6f);
-
-        _bt.SetMemoryObject(UnitAIMemory.AttackSpeed, 666f); // to test subtree behaviors
-        
-        _bt.Init(mainAI);
         return _bt;
     }
 }

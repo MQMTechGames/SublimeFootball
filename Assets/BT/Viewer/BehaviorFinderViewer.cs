@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
 
@@ -6,14 +6,15 @@ namespace MQMTech.AI.BT
 {
     public class BehaviorFinderViewer
     {
-        public BehaviorTree Tree { get; private set; } 
-
-        IBehaviorWithTree[] _bWithTrees;
-        string[] _btreesNames;
-        int _btreesIndex;
+        AvailableTreesModel _availableTrees;
 
         int _xPosition;
         int _yPosition;
+
+        public BehaviorFinderViewer(AvailableTreesModel availableTrees)
+        {
+            _availableTrees = availableTrees;
+        }
 
         public void Render(int xPosition, int yPosition)
         {
@@ -24,7 +25,7 @@ namespace MQMTech.AI.BT
             if(found)
             {
                 RenderBehaviorTreeSelector();
-                Tree = _bWithTrees[_btreesIndex].GetBehaviorTree();
+                _availableTrees.RootTree = _availableTrees.BehaviorsWithTree[_availableTrees.BtreesIndex].GetBehaviorTree();
             }
         }
 
@@ -39,7 +40,7 @@ namespace MQMTech.AI.BT
             GUI.EndGroup();
 
             GUI.BeginGroup(new Rect(_xPosition, _yPosition, Screen.width, 40));
-            _btreesIndex = EditorGUILayout.Popup(_btreesIndex, _btreesNames, GUILayout.Width(248));
+            _availableTrees.BtreesIndex = EditorGUILayout.Popup(_availableTrees.BtreesIndex, _availableTrees.BtreesNames, GUILayout.Width(248));
             GUI.EndGroup();
         }
         
@@ -48,16 +49,16 @@ namespace MQMTech.AI.BT
             GameObject activeGO = Selection.activeGameObject;
             if(activeGO != null)
             {
-                _bWithTrees = GameObjectUtils.FindRecursiveComponentsByTypeDown<IBehaviorWithTree>(activeGO);
-                if(_bWithTrees == null || _bWithTrees.Length <= 0)
+                _availableTrees.BehaviorsWithTree = GameObjectUtils.FindRecursiveComponentsByTypeDown<IBehaviorWithTree>(activeGO);
+                if(_availableTrees.BehaviorsWithTree == null || _availableTrees.BehaviorsWithTree.Length <= 0)
                 {
                     return false;
                 }
 
-                _btreesNames = new string[_bWithTrees.Length];
-                for (int i = 0; i < _bWithTrees.Length; ++i)
+                _availableTrees.BtreesNames = new string[_availableTrees.BehaviorsWithTree.Length];
+                for (int i = 0; i < _availableTrees.BehaviorsWithTree.Length; ++i)
                 {
-                    IBehaviorWithTree btree = _bWithTrees[i];
+                    IBehaviorWithTree btree = _availableTrees.BehaviorsWithTree[i];
                     if(btree == null)
                     {
                         return false;
@@ -68,10 +69,10 @@ namespace MQMTech.AI.BT
                         return false;
                     }
 
-                    _btreesNames[i] = tree.Name;
+                    _availableTrees.BtreesNames[i] = tree.Name;
                 }
                 
-                return _bWithTrees.Length > 0;
+                return _availableTrees.BehaviorsWithTree.Length > 0;
             }
             
             return false;

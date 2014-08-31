@@ -1,46 +1,48 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
 using MQMTech.AI.BT;
 
 public static class BehaviorTreeManager
 {
-    static Dictionary<string, BehaviorTree> _map = new Dictionary<string, BehaviorTree>();
-    static Dictionary<string, IBehaviorTreeBuilder> _builderMap = new Dictionary<string, IBehaviorTreeBuilder>();
+    static BTCollection _bTreeCollection = new BTCollection();
+    static SubtreeCollection _btSubtreeCollection = new SubtreeCollection();
 
-    public static void Add(string name, BehaviorTree btree)
+    public static void AddTree(string name, IBehaviorTreeBuilder tree)
     {
-        DebugUtils.Assert(!_map.ContainsKey(name));
-        _map.Add(name, btree);
-    }
-
-    public static bool Remove(string name)
-    {
-        return _map.Remove(name);
+        _bTreeCollection.Add(name, tree);
     }
 
-    public static BehaviorTree FindBehaviorTree(string name)
+    public static BehaviorTree CreateTreeInstance(string name, Memory localMemory, Memory agentMemory, Memory sharedMemory, Memory globalMemory, TreeParameters parameters)
     {
-        BehaviorTree btree;
-        bool isFound = _map.TryGetValue(name, out btree);
+        IBehaviorTreeBuilder treeBuilder = _bTreeCollection.Find(name);
+        DebugUtils.Assert(treeBuilder != null);
 
-        return isFound ? btree : null;
+        BehaviorTree tree = treeBuilder.Create();
+
+        tree.SetLocalMemory(localMemory);
+        tree.SetAgentMemory(agentMemory);
+        tree.SetSharedMemory(sharedMemory);
+        tree.SetGlobalMemory(globalMemory);
+
+        for (int i = 0; i < parameters.Inputs.Count; ++i)
+        {
+            tree.SetMemoryObject(parameters.Inputs[i].Key, parameters.Inputs[i].Value);
+        }
+
+        return tree;
     }
-    
-    public static void AddBuilder(string name, IBehaviorTreeBuilder btree)
+
+    public static void AddSubtree(string name, IBehaviorTreeBuilder tree, TreeLinkConfiguration linkConfig)
     {
-        DebugUtils.Assert(!_builderMap.ContainsKey(name));
-        _builderMap.Add(name, btree);
+        _btSubtreeCollection.Add(name, tree, linkConfig);
     }
-    
-    public static bool RemoveBuilder(string name)
+
+    public static BehaviorTree FindSubTree(string name)
     {
-        return _builderMap.Remove(name);
+        return _btSubtreeCollection.FindTree(name);
     }
-    
-    public static IBehaviorTreeBuilder FindBuilder(string name)
+
+    public static bool FindSubTreeConfiguration(string name, out TreeLinkConfiguration linkConfiguration)
     {
-        IBehaviorTreeBuilder btree;
-        bool isFound = _builderMap.TryGetValue(name, out btree);
-        
-        return isFound ? btree : null;
+        return _btSubtreeCollection.FindLinkConfiguration(name, out linkConfiguration);
     }
 }
