@@ -949,6 +949,29 @@ namespace MQMTech.AI.Mover.Action
     }
 
     [System.Serializable]
+    public class SaveUnitMemory : Behavior
+    {
+        AIMemoryKey _unitKey;
+        AIMemoryKey _oPositionKey;
+        
+        public SaveUnitMemory(AIMemoryKey unitKey, AIMemoryKey oPositionKey)
+        {
+            _unitKey = unitKey;
+            _oPositionKey = oPositionKey;
+        }
+        
+        public override Status Update()
+        {
+            BaseUnit unit;
+            bool isOk = _bt.GetMemoryObject(_unitKey, out unit);
+            DebugUtils.Assert(isOk, "unit is null");
+            
+            _bt.SetMemoryObject(_oPositionKey, unit.transform.position);            
+            return Status.SUCCESS;
+        }
+    }
+
+    [System.Serializable]
     public class CalculateMagnitudeFromVector : Behavior
     {
         AIMemoryKey _vectorKey;

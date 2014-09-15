@@ -99,7 +99,7 @@ Shader "MQMTech/Raytracing"
             	for(int i = 0; i < ((int) SKY_NUM_STEPS); ++i)
             	{
             		currPos = startPos + ((float) i) * stepDir;
-            		float d = FBM(currPos * 0.001 + _Time.y * 0.2);
+            		float d = FBM(currPos * 0.001 + _Time.y * 0.8);
             		
             		fixed3 currSkyColor = color + _cloudsColor * smoothstep(d, 0.4, 1.) / ((float) SKY_NUM_STEPS);
             		color = lerp(currSkyColor, color, smoothstep(length(currPos.xy) - SKY_MAX_DISTANCE, 0., 1000.));
@@ -110,7 +110,7 @@ Shader "MQMTech/Raytracing"
             	float sunIntensity = clamp(pow(dot(sunDir, rd), 7.) * 0.7, 0.0, 1.0);
             	color += _sunColor * sunIntensity;
             	
-            	sunIntensity = clamp(pow(dot(sunDir, rd), 100.) * 0.7, 0.0, 1.0);
+            	sunIntensity = clamp(pow(dot(sunDir, rd), (0.2 + 0.8 * abs(sin(_Time.y))) * 100.) * 0.7, 0.0, 1.0);
             	color += _sunColor * sunIntensity;
             	
             	sunIntensity = clamp(pow(dot(sunDir, rd), 1000.) * 0.8, 0.0, 1.0);

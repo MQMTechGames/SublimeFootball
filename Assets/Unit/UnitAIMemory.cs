@@ -103,4 +103,6 @@ public static class UnitAIMemory
 
     // Test
     public static AIMemoryKey AttackSpeed = new AIMemoryKey("AttackSpeed", AIMemoryKey.ContextType.Local);
+
+    public static AIMemoryKey StartPosition = new AIMemoryKey("StartPosition", AIMemoryKey.ContextType.Agent);
 }

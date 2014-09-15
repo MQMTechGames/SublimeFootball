@@ -33,11 +33,7 @@ namespace MQMTech.AI
 
         public void SendAIMessage<T>(string messageName, T message)
         {
-            AIMemoryKey memoryKey;
-            if(!MemoryKeysHashCodeManager.TryMemoryMemoryKeyByNameAndContext(messageName, AIMemoryKey.ContextType.Agent, out memoryKey))
-            {
-                memoryKey = new AIMemoryKey(messageName);
-            }
+            AIMemoryKey memoryKey = new AIMemoryKey(messageName);
 
             _bt.SetMemoryObject<T>(memoryKey, message);
         }

@@ -72,14 +72,14 @@ namespace MQMTech.AI.BT
             }
         }
 
-        void RenderMemoryVariables(Dictionary<int, object> map)
+        void RenderMemoryVariables(Dictionary<AIMemoryKey, object> map)
         {
             _yPosition += 20;
             
-            foreach (KeyValuePair<int, System.Object> keyPair in map) 
+            foreach (KeyValuePair<AIMemoryKey, System.Object> keyPair in map) 
             {
-                int key = keyPair.Key;
-                string keyName = MemoryKeysHashCodeManager.GetMemoryNameByHashCode(key);
+                AIMemoryKey key = keyPair.Key;
+                string keyName = key.Name;
                 GUI.Label (new Rect ((float)_xPosition, (float)_yPosition, kLabelWidth, kButtonHeight), keyName);
                 
                 object value = keyPair.Value;

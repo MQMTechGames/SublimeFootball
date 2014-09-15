@@ -92,6 +92,7 @@ public class DemoUnitBTBuilder : MonoBehaviour, IBehaviorWithTree, IBehaviorTree
 
         Sequence AI = new Sequence();
             AI.AddChild(setLocalVariables);
+            AI.AddChild(new SaveUnitMemory(UnitAIMemory.Unit, UnitAIMemory.StartPosition));
             AI.AddChild(mainAI);
         
         _bt.Init(AI);

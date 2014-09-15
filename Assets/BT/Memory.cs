@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class Memory
 {
-    Dictionary<int, System.Object> _map = new Dictionary<int, object>();
-    public Dictionary<int, System.Object> Map { get{ return _map; } }
+    Dictionary<AIMemoryKey, System.Object> _map = new Dictionary<AIMemoryKey, System.Object>();
+    public Dictionary<AIMemoryKey, System.Object> Map { get{ return _map; } }
 
-    public bool GetMemoryObject<T>(int name, out T oVar)
+    public bool GetMemoryObject<T>(AIMemoryKey name, out T oVar)
     {
         oVar = default(T);
         System.Object obj;
@@ -21,7 +21,7 @@ public class Memory
         return isOk;
     }
     
-    public void SetMemoryObject<T>(int name, T oVar)
+    public void SetMemoryObject<T>(AIMemoryKey name, T oVar)
     {
         if (ContainsMemoryObject(name)) 
         {
@@ -31,7 +31,7 @@ public class Memory
         _map.Add(name, oVar);
     }
     
-    public bool RemoveMemoryObject(int name)
+    public bool RemoveMemoryObject(AIMemoryKey name)
     {
         if (ContainsMemoryObject(name)) 
         {
@@ -43,7 +43,7 @@ public class Memory
         return false;
     }
     
-    public bool ContainsMemoryObject(int name)
+    public bool ContainsMemoryObject(AIMemoryKey name)
     {
         return _map.ContainsKey(name);
     }

@@ -147,11 +147,20 @@ public class DefensiveBallRecoverBuilder : MonoBehaviour, IBehaviorWithTree, IBe
             
         Sequence tryToRecoverTheBallWhenDefensing = new Sequence();
             tryToRecoverTheBallWhenDefensing.AddChild(chaseControlOrPushBallIfClose);
+
+        Sequence returnDefensivePosition = new Sequence();
+            returnDefensivePosition.AddChild(new MoveUnitToPosition(UnitAIMemory.Unit, UnitAIMemory.StartPosition));
+
+        Selector chaseTheBall = new Selector();
+            chaseTheBall.AddChild(tryToRecoverTheBallWhenDefensing);
+            chaseTheBall.AddChild(returnDefensivePosition);
+
         #endregion defensive
 
         _bt = new BehaviorTree(BehaviortreeNames.DefensiveBallRecover);
 
-        _bt.Init(tryToRecoverTheBallWhenDefensing);
+        //_bt.Init(tryToRecoverTheBallWhenDefensing);
+        _bt.Init(chaseTheBall);
 
         return _bt;
     }

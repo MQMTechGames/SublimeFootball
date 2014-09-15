@@ -18,19 +18,19 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            return LocalMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+            return LocalMemory.GetMemoryObject<T>(key, out oVar);
         }
         else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            return AgentMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+            return AgentMemory.GetMemoryObject<T>(key, out oVar);
         }
         else if(key.Context == AIMemoryKey.ContextType.Shared)
         {
-            return SharedMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+            return SharedMemory.GetMemoryObject<T>(key, out oVar);
         }
         else
         {
-            return GlobalMemory.GetMemoryObject<T>(key.HashCode, out oVar);
+            return GlobalMemory.GetMemoryObject<T>(key, out oVar);
         }
     }
     
@@ -38,19 +38,19 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            LocalMemory.SetMemoryObject<T>(key.HashCode, iVar);
+            LocalMemory.SetMemoryObject<T>(key, iVar);
         }
         else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            AgentMemory.SetMemoryObject<T>(key.HashCode, iVar);
+            AgentMemory.SetMemoryObject<T>(key, iVar);
         }
         else if(key.Context == AIMemoryKey.ContextType.Shared)
         {
-            SharedMemory.SetMemoryObject<T>(key.HashCode, iVar);
+            SharedMemory.SetMemoryObject<T>(key, iVar);
         }
         else
         {
-            GlobalMemory.SetMemoryObject<T>(key.HashCode, iVar);
+            GlobalMemory.SetMemoryObject<T>(key, iVar);
         }
     }
     
@@ -58,19 +58,19 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            return LocalMemory.RemoveMemoryObject(key.HashCode);
+            return LocalMemory.RemoveMemoryObject(key);
         }
         else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            return AgentMemory.RemoveMemoryObject(key.HashCode);
+            return AgentMemory.RemoveMemoryObject(key);
         }
         else if(key.Context == AIMemoryKey.ContextType.Shared)
         {
-            return SharedMemory.RemoveMemoryObject(key.HashCode);
+            return SharedMemory.RemoveMemoryObject(key);
         }
         else
         {
-            return GlobalMemory.RemoveMemoryObject(key.HashCode);
+            return GlobalMemory.RemoveMemoryObject(key);
         }
     }
     
@@ -78,19 +78,19 @@ public class MemoryManager
     {
         if(key.Context == AIMemoryKey.ContextType.Local)
         {
-            return LocalMemory.ContainsMemoryObject(key.HashCode);
+            return LocalMemory.ContainsMemoryObject(key);
         }
         else if(key.Context == AIMemoryKey.ContextType.Agent)
         {
-            return AgentMemory.ContainsMemoryObject(key.HashCode);
+            return AgentMemory.ContainsMemoryObject(key);
         }
         else if(key.Context == AIMemoryKey.ContextType.Shared)
         {
-            return SharedMemory.ContainsMemoryObject(key.HashCode);
+            return SharedMemory.ContainsMemoryObject(key);
         }
         else
         {
-            return GlobalMemory.ContainsMemoryObject(key.HashCode);
+            return GlobalMemory.ContainsMemoryObject(key);
         }
     }
 }
