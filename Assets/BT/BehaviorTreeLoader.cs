@@ -25,11 +25,11 @@ public class BehaviorTreeLoader : MonoBehaviour
         TreeLinkConfiguration attackWithBallLinkConfig = new TreeLinkConfiguration(TreeLinkConfiguration.LinkMemoryType.Instance, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked);
         BehaviorTreeManager.AddSubtree(BehaviortreeNames.AttackWithall, _attackWithBallTreeBuilder, attackWithBallLinkConfig);
 
-        TreeLinkConfiguration neutralBallRecoverConfig = new TreeLinkConfiguration(TreeLinkConfiguration.LinkMemoryType.Instance, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked);
-        BehaviorTreeManager.AddSubtree(BehaviortreeNames.DefensiveBallRecover, _defensiveBallRecoverBuilder, neutralBallRecoverConfig);
+        TreeLinkConfiguration defensiveBallRecovery = new TreeLinkConfiguration(TreeLinkConfiguration.LinkMemoryType.Instance, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked);
+        BehaviorTreeManager.AddSubtree(BehaviortreeNames.DefensiveBallRecover, _defensiveBallRecoverBuilder, defensiveBallRecovery);
 
-        TreeLinkConfiguration defensiveBallRecoverConfig = new TreeLinkConfiguration(TreeLinkConfiguration.LinkMemoryType.Instance, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked);
-        BehaviorTreeManager.AddSubtree(BehaviortreeNames.NeutralBallRecover, _neutralBallRecoverBuilder, defensiveBallRecoverConfig);
+        TreeLinkConfiguration neutralBallRecovery = new TreeLinkConfiguration(TreeLinkConfiguration.LinkMemoryType.Instance, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked, TreeLinkConfiguration.LinkMemoryType.Linked);
+        BehaviorTreeManager.AddSubtree(BehaviortreeNames.NeutralBallRecover, _neutralBallRecoverBuilder, neutralBallRecovery);
 
         BehaviorTreeManager.AddTree(BehaviortreeNames.Footballer, _demoUnitBTBuilder);
     }

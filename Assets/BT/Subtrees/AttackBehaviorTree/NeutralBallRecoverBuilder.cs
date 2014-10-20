@@ -158,7 +158,7 @@ public class NeutralBallRecoverBuilder : MonoBehaviour, IBehaviorWithTree, IBeha
         Sequence setRecoverTheBallCoolDownTimer = new Sequence();
             setRecoverTheBallCoolDownTimer.AddChild(new SetMemoryVar<float>(UnitAIMemory.RecoverPossessionCoolDownWaitTime, 6.0f));
             setRecoverTheBallCoolDownTimer.AddChild(new SetCoolDownTime(UnitAIMemory.RecoverPossessionCoolDownTimer, UnitAIMemory.RecoverPossessionCoolDownWaitTime));
-
+         
         // Remove Recover the ball CoolDown timer
         Sequence removeRecoverTheBallCoolDown = new Sequence();
             removeRecoverTheBallCoolDown.AddChild(new SetMemoryVar<float>(UnitAIMemory.RecoverPossessionCoolDownWaitTime, -1.0f));
@@ -168,7 +168,7 @@ public class NeutralBallRecoverBuilder : MonoBehaviour, IBehaviorWithTree, IBeha
             tryToClearCoolDownIfPasserIsNotUnit.AddChild(new Inverter().SetChild(new CheckAreEqualMemoryVars<BaseUnit>(UnitAIMemory.Unit, UnitAIMemory.BallPasserUnit)));
             tryToClearCoolDownIfPasserIsNotUnit.AddChild(removeRecoverTheBallCoolDown);
 
-        GateMaxNumber catchAndControllTheBallGate = new GateMaxNumber(UnitAIMemory.NumUnitsToRecoverPossessionCounter, 1, GateMaxNumber.GatePolicy.FAIL_IF_UNAVAILABLE);
+        GateMaxNumber catchAndControllTheBallGate = new GateMaxNumber(UnitAIMemory.NumUnitsToRecoverPossessionCounter, 3, GateMaxNumber.GatePolicy.FAIL_IF_UNAVAILABLE);
             catchAndControllTheBallGate.SetChild(catchAndControllTheBall);
 
         Sequence recoverClosestBall = new Sequence();

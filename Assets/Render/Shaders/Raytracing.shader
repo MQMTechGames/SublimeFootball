@@ -236,9 +236,10 @@ Shader "MQMTech/Raytracing"
 				fixed3 color = fixed3(0.);
 				float a = 1.;
 				
-				if(rd.y > 0.)
+				if(rd.y > -0.5)
 				{
 					color = DrawSky(ro, rd);
+					color = lerp(float3(0), color, smoothstep(rd.y, -0.5, -0.0));
 				}
 				else
 				{
