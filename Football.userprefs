@@ -1,11 +1,8 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Tilemap\Tile.cs">
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\Boids2\Assets\SteeringManager.cs">
     <Files>
-      <File FileName="Assets\Pathfinding.cs" Line="88" Column="9" />
-      <File FileName="Assets\Tilemap\Tilemap.cs" Line="67" Column="26" />
-      <File FileName="Assets\Tilemap\Tile.cs" Line="78" Column="52" />
-      <File FileName="Assets\Tilemap\MonteCarlo.cs" Line="229" Column="52" />
+      <File FileName="..\Boids2\Assets\SteeringManager.cs" Line="37" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
